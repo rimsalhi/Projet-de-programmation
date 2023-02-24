@@ -24,5 +24,3 @@ def get_path_with_power(p,t):
         return connected_components_sets(t.graph)
     else:
         return None
-
-
