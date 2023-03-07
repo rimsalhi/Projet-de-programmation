@@ -18,9 +18,7 @@ def get_path_with_power(p,t):
     s=0
     for i in t.graph:
         for j in t.graph[i]:
-            s+=1/2*j[1]
-    if p>=s:
-        print("Ce trajet est possible")
-        return connected_components_sets(t.graph)
-    else:
-        return None
+            if p<j[1]:
+                return False
+    print("Ce trajet est possible")
+    return connected_components_sets(t.graph)

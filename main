@@ -92,7 +92,7 @@ def graph_from_file(filename):
     for line in L:
         G.add_edge(int(line[0]),int(line[1]),int(line[2]))
     return G
-g = graph_from_file("/home/onyxia/work/input /network.00.in")
+g = graph_from_file("/home/onyxia/Projet-de-programmation/input/network.00.in")
 print(g)
 
 #import copy 
@@ -139,6 +139,7 @@ def explore(G,v,s):
     return s 
 s=set()
 print(explore(B,1,s))
+
 def connected_components_set(G):
     L=[]
     for v in G.nodes:
