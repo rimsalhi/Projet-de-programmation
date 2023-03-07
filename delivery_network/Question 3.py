@@ -13,7 +13,6 @@ print(B)
 
 
 
-
 def get_path_with_power(p,t):
     s=0
     for i in t.graph:
