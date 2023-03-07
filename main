@@ -80,3 +80,4 @@ def get_path_with_power(p,t):
     return connected_components_set(t)
 
 get_path_with_power(1000,B)
+
