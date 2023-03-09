@@ -1,99 +1,10 @@
-class Graph:
-    def __init__(self, nodes=[]):
-        self.nodes = nodes
-        self.graph = dict([(n, []) for n in nodes])
-        self.nb_nodes = len(nodes)
-        self.nb_edges = 0
-    
+from graph import Graph, graph_from_file
 
-    def __str__(self):
-        """Prints the graph as a list of neighbors for each node (one per line)"""
-        if not self.graph:
-            output = "The graph is empty"            
-        else:
-            output = f"The graph has {self.nb_nodes} nodes and {self.nb_edges} edges.\n"
-            for source, destination in self.graph.items():
-                output += f"{source}-->{destination}\n"
-        return output
-    
-    def add_edge(self, node1, node2, power_min, dist=1):
-        """
-        Adds an edge to the graph. Graphs are not oriented, hence an edge is added to the adjacency list of both end nodes. 
-
-        Parameters: 
-        -----------
-        node1: NodeType
-            First end (node) of the edge
-        node2: NodeType
-            Second end (node) of the edge
-        power_min: numeric (int or float)
-            Minimum power on this edge
-        dist: numeric (int or float), optional
-            Distance between node1 and node2 on the edge. Default is 1.
-        """
-        self.graph[node1].append((node2, power_min, dist))
-        self.graph[node2].append((node1, power_min, dist))
-
-    
-
-    def get_path_with_power(self, src, dest, power):
-        raise NotImplementedError
-    
-
-    def connected_components(self):
-        raise NotImplementedError
-
-    def connected_components_set(self):
-        """
-        The result should be a set of frozensets (one per component), 
-        For instance, for network01.in: {frozenset({1, 2, 3}), frozenset({4, 5, 6, 7})}
-        """
-        return set(map(frozenset, self.connected_components()))
-    
-    def min_power(self, src, dest):
-        """
-        Should return path, min_power. 
-        """
-        raise NotImplementedError
-
-def graph_from_file(filename):
-    """
-    Reads a text file and returns the graph as an object of the Graph class.
-
-    The file should have the following format: 
-        The first line of the file is 'n m'
-        The next m lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
-        The nodes (node1, node2) should be named 1..n
-        All values are integers.
-
-    Parameters: 
-    -----------
-    filename: str
-        The name of the file
-
-    Outputs: 
-    -----------
-    G: Graph
-        An object of the class Graph with the graph from file_name.
-    """
-    f=open(filename, 'r')
-    lines=f.readlines()  
-
-    L=[]
-    for i in range(len(lines)):
-        L.append(lines[i].split())
-    M=[i for i in range(1,int(L[0][0])+1)]
-    print(M)
-    G=Graph(M)
-    G.nb_edges=int(L[0][1])
-
-    L.pop(0)
-
-    for line in L:
-        G.add_edge(int(line[0]),int(line[1]),int(line[2]))
-    return G
 #g = graph_from_file("/home/onyxia/work/input /network.00.in")
 #print(g)
+
+
+###### QUESTION 2
 
 #import copy 
 # def parcours_en_prof(A,a):
@@ -122,35 +33,59 @@ def graph_from_file(filename):
 #         return L 
 #print(parcours_en_prof(A.graph, 1))
 
-#Un exemple simple de graphe 
-B=Graph([1,2,3,4,5,6,12])
-B.add_edge(1,4,0)
-B.add_edge(4,5,0)
-B.add_edge(1,2,0)
-B.add_edge(1,3,0)
-B.add_edge(6,12,0)
-print(B)       
-
 def explore(G,v,s):
+    """A recursive function that updates a set s (initially empty) 
+    adding each time a node that isn't in s but connected to v 
+    then moves to explore the connections of the added node.
+
+    Args:
+        G (Graph): 
+        v (integer): a node in the Graph G
+        s (set): initially empty 
+
+    Returns:
+        set: containing all the nodes from G connected to v
+    """
     for k in G.graph[v]:
         if (k[0] in s)==False:
             s.add(k[0])
             explore(G,k[0],s)
     return s 
-s=set()
-print(explore(B,1,s))
+
 def connected_components_set(G):
+    """Uses the explore function to determine the connected component of each node.
+    The type Set, being unordered, allows us to avoid redundancy.
+
+    Args:
+        G (Graph)
+
+    Returns:
+        list: a list containing sets, each set is a group of connected nodes 
+        that are connected together and thus form a connected component
+    """
     L=[]
     for v in G.nodes:
         s=set()
         if (explore(G,v,s) in L)==False:
             L.append(explore(G,v,s))
     return L 
-           
-print(connected_components_set(B))
 
-#Question 4
+###### QUESTION 4
 def graph_from_file_4(filename):
+    """Reads a text file and returns the graph as an object of the Graph class.
+
+    The file should have the following format: 
+        The first line of the file is 'm n'
+        The next m lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
+        The nodes (node1, node2) should be named 1..n
+        All values are integers.
+
+    Args:
+        filename (str): the path of the file
+
+    Returns:
+        Graph: a Graph object with the graph from the file
+    """
     f=open(filename, 'r')
     lines=f.readlines()  
     L=[]
@@ -169,6 +104,111 @@ def graph_from_file_4(filename):
 
         G.add_edge(int(line[0]),int(line[1]),int(line[2]),d)
     return G
+
+###### QUESTION 5 et 6
+"""The following code returns, given two nodes v and u and a Graph G
+    all the paths the truck could possibly cover starting its journey from v looking for u.
+    The journey could end - in the destination u 
+                          - in the starting point v (we spot those with 'STOP')
+                          - in the end of a road (a node with one connexion)
+"""
+def end(G,u,H):
+    """Checks the stopping condition of the recursive function all_paths
+
+    Args:
+        G (Graph): the graph the truck is navigating
+        u (integer): the destination node
+        H (list): a list of partial paths the truck could cover 
+
+    Returns:
+        Boolean: True if there are no more paths the truck could cover and all_paths should stop:
+        All paths in H are either - ended in the destination u 
+                            or    - ended in 'STOP'
+                            or    - ended in a single connexion node
+
+        False otherwise.
+        
+    """
+    if len(H)==1:
+        return False
+    for L in H: 
+        if (L[-1]!=u) and (L[-1]!='STOP') and (len(G.graph[L[-1]])!=1):
+            return False
+    return True
+
+def all_paths(G,v,u,H):
+    """a recursive function that given all first n possible steps 
+    the truck could take starting from v and returns all first n+1 possible steps
+    and stops when end is True (no further possible steps that could lead to u).
+    It's a choice tree.
+    Args:
+        G (Graph): _description_
+        v (integer): The starting point
+        u (integer): The detination
+        H (list): list of partial paths
+
+    Returns:
+        H: a list of possible paths (lists) starting from v 
+    """
+    if end(G,u,H)==True:
+        return H
+    i=0
+    # i is the level of the branch in the choice tree
+    while (i <len(H)): 
+        if H[i][-1]==u:
+            i+=1
+            continue
+        elif (H[i][-1]==H[i][0]) and (len(H[i])>1):
+                H[i].append('STOP')
+                i+=1
+                continue
+        elif H[i][-1]=='STOP':
+            i+=1
+            continue
+        s=0  
+        for k in G.graph[H[i][-1]]: 
+            if (k[0] in H[i][1:])==False: 
+                # We only allow v to be repeated in a path in order to spot a path that leads to the starting point
+                H.insert(i+1,H[i]+[k[0]])
+                s+=1 #s is the number of the new branches 'les branches filles'
+        if s>0:        
+            H.pop(i) # 'les branches filles' replace 'la branche mère'
+            i+=s # we move on to the next 'branche mère'
+        else:
+            i+=1 
+    #print(H)
+    return all_paths(G,v,u,H)
+
+
+
+
+
+
+
+
+
+
+
+
+
+# problème s'il y a un cycle interne : voir B 
+# La fonction fin a pour but de vérifier la condition d'arrêt de la fonction récursive
+# S'il reste plus des choix à faire (on est tombé sur u ou on est tombé sur la case de départ)
+        # on passe à la branche suivante, sinon on poursuit  
+ 
+#Un exemple simple de graphe 
+B=Graph([1,2,3,4,5,6,12])
+B.add_edge(1,4,0)
+B.add_edge(4,5,0)
+B.add_edge(1,2,0)
+B.add_edge(1,3,0)
+B.add_edge(6,12,0)
+print(B)       
+
+s=set()
+print(explore(B,1,s))           
+print(connected_components_set(B))
+
 print(graph_from_file_4("/home/onyxia/work/lost+found/network.04.in"))
 # Les fichiers 00 01 02 et 03 présentent dans la première ligne
 # le nombre de noeuds puis le nombre d'arêtes, c'est inversé dans le fichier 0' 
@@ -299,5 +339,5 @@ B.add_edge(1,2,0)
 B.add_edge(1,3,0)
 B.add_edge(1,13,0)
 print(B) 
-print(explore3(B,1,12,H))
+print(all_paths(B,1,12,H))
 
