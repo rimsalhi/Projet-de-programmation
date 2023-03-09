@@ -155,14 +155,24 @@ def all_paths_u(G,v,u):
     Returns:
         a list of possible paths relating the starting node v and the destination u
     """
-    H=all_paths(G,v,u,[v])
+    H=all_paths(G,v,u,[[v]])
     P=[]
     for L in H:
         if L[-1]==u:
             P.append(L)
-    return L 
+    return P
 
-######
+def power(G,L):
+    """Returns the minimal power a truck should have to be able to cover the path L"""
+    max=0
+    for i in range(len(L)-1): 
+        for k in G.graph[L[i]]:
+            if k[0]==L[i+1]:
+                if k[1] > max:
+                    max=k[1]
+    return max
+
+###### 
 ###### QUESTION 4
 def graph_from_file_4(filename):
     """Reads a text file and returns the graph as an object of the Graph class.
@@ -197,7 +207,35 @@ def graph_from_file_4(filename):
 
         G.add_edge(int(line[0]),int(line[1]),int(line[2]),d)
     return G
+###### QUESTION 5
 
+###### QUESTION 6 
+def min_power(G,v,u):
+    Paths=all_paths_u(G,v,u)
+    if Paths==[]:
+        return "Le chemin n'est pas possible"
+    else: 
+        Powers=[power(G,L) for L in Paths]
+        pw=min(Powers)
+        i=Powers.index(pw) 
+        return Paths[i],pw
+
+###### QUESTION 7 
+# import graphviz
+# def G_rep(G,u,v):
+#     P= min_power(G,v,u)[0]
+#     f = graphviz.AGrap(name='rep', format='pdf')
+#     for node in G.graph:
+#         for k in G.graph[node]:
+#             f.attr('node', shape='circle')
+#             f.edge(str(node), str(k[0]), label= str(k[1]))
+#     for n in P:
+#         f.attr('node', shape='doublecircle')
+#         f.node(str(n))
+#     f.view()
+
+print(min_power(B,1,5))
+# G_rep(B, 1, 5)
 
 
 
