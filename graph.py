@@ -5,7 +5,6 @@ class Graph:
         self.nb_nodes = len(nodes)
         self.nb_edges = 0
     
-
     def __str__(self):
         """Prints the graph as a list of neighbors for each node (one per line)"""
         if not self.graph:
@@ -34,12 +33,9 @@ class Graph:
         self.graph[node1].append((node2, power_min, dist))
         self.graph[node2].append((node1, power_min, dist))
 
-    
-
     def get_path_with_power(self, src, dest, power):
         raise NotImplementedError
     
-
     def connected_components(self):
         raise NotImplementedError
 
@@ -55,6 +51,7 @@ class Graph:
         Should return path, min_power. 
         """
         raise NotImplementedError
+
 
 def graph_from_file(filename):
     """
@@ -92,5 +89,3 @@ def graph_from_file(filename):
     for line in L:
         G.add_edge(int(line[0]),int(line[1]),int(line[2]))
     return G
-g = graph_from_file("/home/onyxia/Projet-de-programmation/input/network.00.in")
-print(g)

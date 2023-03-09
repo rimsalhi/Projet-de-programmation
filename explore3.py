@@ -300,3 +300,4 @@ B.add_edge(1,3,0)
 B.add_edge(1,13,0)
 print(B) 
 print(explore3(B,1,12,H))
+
