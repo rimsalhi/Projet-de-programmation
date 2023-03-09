@@ -70,6 +70,99 @@ def connected_components_set(G):
             L.append(explore(G,v,s))
     return L 
 
+###### QUESTION 3, 5 et 6
+"""The following code returns, given two nodes v and u and a Graph G
+    all the paths the truck could possibly cover starting its journey from v looking for u.
+    The journey could end - in the destination u 
+                          - in the starting point v (we spot those with 'STOP')
+                          - in the end of a road (a node with one connexion)
+"""
+def end(G,u,H):
+    """Checks the stopping condition of the recursive function all_paths
+
+    Args:
+        G (Graph): the graph the truck is navigating
+        u (integer): the destination node
+        H (list): a list of partial paths the truck could cover 
+
+    Returns:
+        Boolean: True if there are no more paths the truck could cover and all_paths should stop:
+        All paths in H are either - ended in the destination u 
+                            or    - ended in 'STOP'
+                            or    - ended in a single connexion node
+
+        False otherwise.   
+    """
+    if len(H)==1:
+        return False
+    for L in H: 
+        if (L[-1]!=u) and (L[-1]!='STOP') and (len(G.graph[L[-1]])!=1):
+            return False
+    return True
+
+def all_paths(G,v,u,H):
+    """a recursive function that given all first n possible steps 
+    the truck could take starting from v and returns all first n+1 possible steps
+    and stops when end is True (no further possible steps that could lead to u).
+    It's a choice tree.
+    Args:
+        G (Graph): the graph the truck is navigating 
+        v (integer): the starting point
+        u (integer): the detination
+        H (list): list of partial paths
+
+    Returns:
+        H: a list of possible paths (lists) starting from v 
+    """
+    if end(G,u,H)==True:
+        return H
+    i=0
+    # i is the level of the branch in the choice tree
+    while (i <len(H)): 
+        if H[i][-1]==u:
+            i+=1
+            continue
+        elif (H[i][-1]==H[i][0]) and (len(H[i])>1):
+                H[i].append('STOP')
+                i+=1
+                continue
+        elif H[i][-1]=='STOP':
+            i+=1
+            continue
+        s=0  
+        for k in G.graph[H[i][-1]]: 
+            if (k[0] in H[i][1:])==False: 
+                # We only allow v to be repeated in a path in order to spot a path that leads to the starting point
+                H.insert(i+1,H[i]+[k[0]])
+                s+=1 #s is the number of the new branches 'les branches filles'
+        if s>0:        
+            H.pop(i) # 'les branches filles' replace 'la branche mère'
+            i+=s # we move on to the next 'branche mère'
+        else:
+            i+=1 
+    #print(H)
+    return all_paths(G,v,u,H)
+
+def all_paths_u(G,v,u):
+    """Uses all_paths to return all possible paths 
+    starting from v ending in u
+
+    Args:
+        G (Graph): the graph the truck is navigating
+        v (integer): the starting node
+        u (integer): the destination node 
+
+    Returns:
+        a list of possible paths relating the starting node v and the destination u
+    """
+    H=all_paths(G,v,u,[v])
+    P=[]
+    for L in H:
+        if L[-1]==u:
+            P.append(L)
+    return L 
+
+######
 ###### QUESTION 4
 def graph_from_file_4(filename):
     """Reads a text file and returns the graph as an object of the Graph class.
@@ -104,80 +197,6 @@ def graph_from_file_4(filename):
 
         G.add_edge(int(line[0]),int(line[1]),int(line[2]),d)
     return G
-
-###### QUESTION 5 et 6
-"""The following code returns, given two nodes v and u and a Graph G
-    all the paths the truck could possibly cover starting its journey from v looking for u.
-    The journey could end - in the destination u 
-                          - in the starting point v (we spot those with 'STOP')
-                          - in the end of a road (a node with one connexion)
-"""
-def end(G,u,H):
-    """Checks the stopping condition of the recursive function all_paths
-
-    Args:
-        G (Graph): the graph the truck is navigating
-        u (integer): the destination node
-        H (list): a list of partial paths the truck could cover 
-
-    Returns:
-        Boolean: True if there are no more paths the truck could cover and all_paths should stop:
-        All paths in H are either - ended in the destination u 
-                            or    - ended in 'STOP'
-                            or    - ended in a single connexion node
-
-        False otherwise.
-        
-    """
-    if len(H)==1:
-        return False
-    for L in H: 
-        if (L[-1]!=u) and (L[-1]!='STOP') and (len(G.graph[L[-1]])!=1):
-            return False
-    return True
-
-def all_paths(G,v,u,H):
-    """a recursive function that given all first n possible steps 
-    the truck could take starting from v and returns all first n+1 possible steps
-    and stops when end is True (no further possible steps that could lead to u).
-    It's a choice tree.
-    Args:
-        G (Graph): _description_
-        v (integer): The starting point
-        u (integer): The detination
-        H (list): list of partial paths
-
-    Returns:
-        H: a list of possible paths (lists) starting from v 
-    """
-    if end(G,u,H)==True:
-        return H
-    i=0
-    # i is the level of the branch in the choice tree
-    while (i <len(H)): 
-        if H[i][-1]==u:
-            i+=1
-            continue
-        elif (H[i][-1]==H[i][0]) and (len(H[i])>1):
-                H[i].append('STOP')
-                i+=1
-                continue
-        elif H[i][-1]=='STOP':
-            i+=1
-            continue
-        s=0  
-        for k in G.graph[H[i][-1]]: 
-            if (k[0] in H[i][1:])==False: 
-                # We only allow v to be repeated in a path in order to spot a path that leads to the starting point
-                H.insert(i+1,H[i]+[k[0]])
-                s+=1 #s is the number of the new branches 'les branches filles'
-        if s>0:        
-            H.pop(i) # 'les branches filles' replace 'la branche mère'
-            i+=s # we move on to the next 'branche mère'
-        else:
-            i+=1 
-    #print(H)
-    return all_paths(G,v,u,H)
 
 
 
@@ -339,5 +358,5 @@ B.add_edge(1,2,0)
 B.add_edge(1,3,0)
 B.add_edge(1,13,0)
 print(B) 
-print(all_paths(B,1,12,H))
+print(all_paths(B,1,5,H))
 
