@@ -274,6 +274,52 @@ def G_rep(G,v,u):
 
 ###### QUESTION 8
 
+###### QUESTION 12
+def edges(G):
+    H=[]
+    for node in G.graph: 
+        for k in G.graph[node]:
+            if ({node,k[0]} in H)==False:
+                H.append({node,k[0]})
+    return H
+def find(parents,n):
+    if parents[n]==n:
+        return n
+    else return find(parents, parents[n])
+def union (parents,n,m):
+    parents[n]=m
+
+def union_find(G):
+    parents={{node} for node in G.nodes}
+    for edge in edges(G):
+        a=find(parents, edge[0])
+        b=find(parents, edge[1])
+        if a==b:
+            retrun True
+        else:
+            union(parents,edge[0],edge[1])
+    return False
+
+def kruskal(G):
+    G_mst=Graph(G.nodes)
+    for edge in edges(G): #Les edges doivent être triés par ordre de poids croissant.
+        G_mst.add_edge(edge[0],edge[1],10)
+        if union_find(G_mst)==False:
+            del G_mst.graph[edge[0]]((egde[1],10,1))
+            del G_mst.graph[edge[1]]((egde[0],10,1))
+    return G_mst
+#p144
+###### QUESTION 13 
+def power_min_tree(G,v,u):
+
+
+
+            
+
+
+
+
+
 
 
 
