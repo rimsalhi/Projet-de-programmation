@@ -180,6 +180,43 @@ def get_path_with_power(G,p,t):
         print("Le chemin est possible")
         return H[j]
 
+## QUESTION 3 * 
+def get_path_with_power(G,p,t):
+    queue=[[t[0]]]
+    while queue!=[]:
+        path=queue.pop()
+        node=path[-1]
+        if node==t[1]:
+            return path
+        for k in G.graph[node]:
+            if (k[1]<=p) and (k[0] in path)==False:
+                queue.append(path+[k[0]])
+    print("Le chemin n'est pas possible")
+## QUESTION 6*
+def edges(G):
+    H=[]
+    for node in G.graph: 
+        for k in G.graph[node]:
+            if ({node,k[0]} in H)==False:
+                H.append({node,k[0]})
+    return H
+
+def min_power(G,t):
+    PMax=0
+    for edge in edges(G):
+        edge2=list(edge)
+        for k in G.graph[edge2[0]]:
+            if (k[0]==edge2[1]) and (k[1]>PMax):
+                PMax=k[1]
+    a=0 
+    b=PMax
+    while a<b:
+        if get_path_with_power(G, (b-a)/2, t)==None:
+            a=(b-a)/2
+        else: 
+            b=(b-a)/2
+    return (b-a)/2, get_path_with_power(G,(b-a)/2,t)
+
 ###### QUESTION 4
 def graph_from_file_4(filename):
     """Reads a text file and returns the graph as an object of the Graph class.
@@ -285,7 +322,8 @@ def edges(G):
 def find(parents,n):
     if parents[n]==n:
         return n
-    else return find(parents, parents[n])
+    else:
+         return find(parents, parents[n])
 def union (parents,n,m):
     parents[n]=m
 
@@ -309,28 +347,87 @@ def kruskal(G):
             del G_mst.graph[edge[1]]((egde[0],10,1))
     return G_mst
 #p144
-###### QUESTION 13 
-def power_min_tree(G,v,u):
-
-
-
-            
+import time
 
 
 
 
-
-
-
-
-
-
+def temps_necessaire(filename,t,n):
+    G=graph_from_file_4(filename)
+    H=all_paths_u(G,t[0],t[1])[:n]
+    K1=[]
+    for L in H:
+        K1.append(power(G,L))
+    return (min(K1),H[K1.index(min(K1))])
 
 
 
 
 
-"""
+a=time.perf_counter()
+temps_necessaire("/home/onyxia/Projet-de-programmation/input/routes.2.in",(6,15),100)
+b=time.perf_counter()
+print(b-a)
+
+###### QUESTION 14
+
+def rank(A,v):
+    if v==A.nodes[0]:
+        return 0
+    for i in range(len(A.nodes)):
+        for k in A.graph[A.nodes[i]]:
+            if k[0]==v:
+                return 1 + rank(A,A.nodes[i])
+
+def youngest_common_ancestor(A,v,u):
+    a=v
+    b=u
+    while a!=b:
+        if rank(A,b) >= rank(A,a):
+            for k in A.graph[b]:
+                if rank(A,k[0]) < rank(A,b):
+                    b=k[0]
+        else: 
+            a,b=b,a
+    return a
+
+print(youngest_common_ancestor(A, 12, 5))
+
+
+
+def power_min_tree(A,v,u):
+    ancestor=youngest_common_ancestor(A, 12, 5)
+
+
+
+A=Graph([0,1,3,4,5,6,7,12,13,10])
+A.add_edge(0,3,0)
+A.add_edge(0,1,0)
+A.add_edge(4,3,0)
+A.add_edge(4,12,0)
+A.add_edge(5,3,0)
+A.add_edge(10,5,0)
+A.add_edge(13,5,0)
+A.add_edge(6,1,0)
+A.add_edge(7,1,0)
+print(A)
+print(rank(A,13))    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 print(min_power(B,1,5))
 G_rep(B, 1, 5)
 
@@ -385,9 +482,10 @@ B.add_edge(6, 5, 0)
 B.add_edge(14,1,0)
 B.add_edge(13,14,0)
 B.add_edge(1,4,0)
-B.add_edge(1,2,0)
+B.add_edge(1,2,10)
 B.add_edge(1,3,0)
 B.add_edge(1,13,0)
 print(B) 
-print(all_paths(B,1,5,H))"""
+print(get_path_with_power(B,0,(1,5)))
+print(min_power(B,(1,5)))
 
