@@ -75,7 +75,153 @@ def get_path_with_power(G,p,t):
     return None
 
 """ Complexity analysis: 
+The worst-case scenerio is the case in whitch the function returns None.
+In this case, the function explore for every node its edges. 
+Therefore, it explore all the nodes and edges. 
+We conclude that the complexity is O(V+E). 
 """
+
+
+###### QUESTION 4
+def graph_from_file_4(filename):
+    """Reads a text file and returns the graph as an object of the Graph class.
+
+    The file should have the following format: 
+        The first line of the file is 'n m'
+        The next m lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
+        The nodes (node1, node2) should be named 1..n
+        All values are integers.
+
+    Args:
+        filename (str): the path of the file
+
+    Returns:
+        Graph: a Graph object with the graph from the file
+    """
+    f=open(filename, 'r')
+    lines=f.readlines()  
+    L=[]
+    for i in range(len(lines)):
+        L.append(lines[i].split())
+    M=[i for i in range(1,int(L[0][0])+1)]
+    G=Graph(M)
+    G.nb_edges=int(L[0][1])
+    L.pop(0)
+    for line in L:
+        if len(line)==4: 
+            d=int(line[3])
+        else: 
+            d=1
+
+        G.add_edge(int(line[0]),int(line[1]),int(line[2]),d)
+    return G
+
+
+###### QUESTION 6
+
+def edges(G):
+    """Returns a list of sets, each set is an edge of the graph object G.
+
+    Args:
+        G (Graph): 
+    """
+    H=[]
+    for node in G.graph: 
+        for k in G.graph[node]:
+            if ({node,k[0]} in H)==False:
+                H.append({node,k[0]})
+    return H
+
+def min_power(G,t):
+    """Starts by determining the maximal power of the edges PMax. 
+    Then, using a dichotomous search on [Pmin,PMax], looks for 
+    the minimal power with whitch the journey t is possible. 
+
+    Args:
+        G (Graph): 
+        t (tuple): the route
+
+    Returns:
+        tuple: composed of - the path with the minimal power and its power if a path exists.
+                           - None and the median power
+    """
+    #PW is the list of disctinct powers in the graph sorted in an increasing order.
+    PW=[]
+    for edge in edges(G):
+        edge2=list(edge)
+        for k in G.graph[edge2[0]]:
+            if (k[0]==edge2[1]) and (k[1] not in PW):
+                PW.append(k[1])
+    PW.sort()
+    #The dichotomous search for the path with minimal power.
+    a=0
+    b=len(PW)-1
+    while a<b:
+        if get_path_with_power(G, PW[int((b+a)/2)], t)==None:
+            #There are no paths for t with a power smaller than (b-a)/2.
+            a=int((b+a)/2)+1
+            #Continues its search in [(b-a)/2,b].
+        else: 
+            b=int((b+a)/2)
+            #Continue its search for a path with less power required.
+
+    return (get_path_with_power(G, PW[b],t) ,PW[b])
+
+"""Complexity analysis: If we consider P to be the number of distinct powers in the graph:
+the complexity of the construction of PW is O(P) and
+the complexity of the dichotomous search is O(log2(P)*(V+E)).
+Therefore, the complexity of the whole algorithm is O(P*(V+E)). 
+If we only consider V and E, we conclude that the complexity is O(V+E).
+"""
+
+
+###### QUESTION 7 
+
+import graphviz #installed with conda install python-graphviz
+import os
+os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
+
+def G_rep(G,t):
+    P= min_power(G,t)[0]
+    v=t[0]
+    u=t[1]
+    f = graphviz.Graph('rep_graph00')
+    H=[]
+    for node in G.graph:
+        for k in G.graph[node]:
+            if ({node,k[0]} in H)==False:
+                if (node in P) and (k[0] in P):
+                    f.node(str(node), fillcolor='red', style='filled')
+                    f.node(str(k[0]), fillcolor='red', style='filled')
+                    f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
+                else:
+                    f.edge(str(node), str(k[0]), label= str(k[1]))
+                H.append({node,k[0]})
+    f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
+    f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
+    f.view()
+
+#The representation of the graph and the minimal power path of network00: rep_graph00.gv.pdf
+# g=graph_from_file_4("/home/onyxia/work/Projet-de-programmation/input/network.00.in")
+# G_rep(g,(1,5))
+
+
+###### QUESTION 10
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
 
 ###### Fonctions utilisées dans les questions 3, 5 et 6
 """The following code returns, given two nodes v and u and a Graph G
@@ -228,40 +374,6 @@ def min_power(G,t):
             b=(b-a)/2
     return (b-a)/2, get_path_with_power(G,(b-a)/2,t)
 
-###### QUESTION 4
-def graph_from_file_4(filename):
-    """Reads a text file and returns the graph as an object of the Graph class.
-
-    The file should have the following format: 
-        The first line of the file is 'm n'
-        The next m lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
-        The nodes (node1, node2) should be named 1..n
-        All values are integers.
-
-    Args:
-        filename (str): the path of the file
-
-    Returns:
-        Graph: a Graph object with the graph from the file
-    """
-    f=open(filename, 'r')
-    lines=f.readlines()  
-    L=[]
-    for i in range(len(lines)):
-        L.append(lines[i].split())
-    M=[i for i in range(1,int(L[0][1])+1)]
-    print(M)
-    G=Graph(M)
-    G.nb_edges=int(L[0][0])
-    L.pop(0)
-    for line in L:
-        if len(line)==4: 
-            d=int(line[3])
-        else: 
-            d=1
-
-        G.add_edge(int(line[0]),int(line[1]),int(line[2]),d)
-    return G
 
 ###### QUESTION 5
 def distance(G,L):
