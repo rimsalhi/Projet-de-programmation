@@ -208,11 +208,54 @@ def G_rep(G,t):
 
 ###### QUESTION 10
 
+def graph_from_file_route(filename):
+    """Reads a text file and returns the graph as an object of the Graph class.
 
+    The file should have the following format: 
+        The first line of the file is 'n'
+        The next n lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
+        All values are integers.
 
+    Args:
+        filename (str): the path of the file
 
+    Returns:
+        Graph: a Graph object with the graph from the file
+    """
+    f=open(filename, 'r')
+    lines=f.readlines()  
+    L=[]
+    for i in range(len(lines)):
+        L.append(lines[i].split())
+    M=list({int(line[0]) for line in L})
+    G=Graph(M)
+    G.nb_edges=int(L[0][0])
+    L.pop(0)
+    for line in L:
+        if line[0]!=line[1]:
+            G.add_edge(int(line[0]),int(line[1]),int(line[2]))
+    return G
 
-  
+import time
+
+def necessary_time(filename,t):
+    """Returns the necessary time to find the minimal power path if exists for the route t.
+
+    Args:
+        filename (str): the path of the graph file 
+        t (tuple): the rout 
+
+    Returns:
+        float: the necessary time 
+    """
+    G=graph_from_file_route(filename)
+    a=time.perf_counter()
+    print(min_power(G, t))
+    b=time.perf_counter()
+    return b-a
+
+#print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/routes.1.in", (6,15)))
+# Determining the minimal power for route.1  and its path takes about 0.017s.
 
 
 
@@ -349,31 +392,6 @@ def get_path_with_power(G,p,t):
             if (k[1]<=p) and (k[0] in path)==False:
                 queue.append(path+[k[0]])
     print("Le chemin n'est pas possible")
-## QUESTION 6*
-def edges(G):
-    H=[]
-    for node in G.graph: 
-        for k in G.graph[node]:
-            if ({node,k[0]} in H)==False:
-                H.append({node,k[0]})
-    return H
-
-def min_power(G,t):
-    PMax=0
-    for edge in edges(G):
-        edge2=list(edge)
-        for k in G.graph[edge2[0]]:
-            if (k[0]==edge2[1]) and (k[1]>PMax):
-                PMax=k[1]
-    a=0 
-    b=PMax
-    while a<b:
-        if get_path_with_power(G, (b-a)/2, t)==None:
-            a=(b-a)/2
-        else: 
-            b=(b-a)/2
-    return (b-a)/2, get_path_with_power(G,(b-a)/2,t)
-
 
 ###### QUESTION 5
 def distance(G,L):
@@ -410,27 +428,6 @@ def min_power(G,v,u):
         i=Powers.index(pw) 
         return Paths[i],pw
 
-###### QUESTION 7 
-import graphviz
-import os
-os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin'
-def G_rep(G,v,u):
-    P= min_power(G,v,u)[0]
-    f = graphviz.Graph('rep_graph.png')
-    H=[]
-    for node in G.graph:
-        for k in G.graph[node]:
-            if ({node,k[0]} in H)==False:
-                if (node in P) and (k[0] in P):
-                    f.node(str(node), fillcolor='red', style='filled')
-                    f.node(str(k[0]), fillcolor='red', style='filled')
-                    f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
-                else:
-                    f.edge(str(node), str(k[0]), label= str(k[1]))
-                H.append({node,k[0]})
-    f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
-    f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
-    f.view()
 
 ###### QUESTION 8
 
@@ -470,27 +467,10 @@ def kruskal(G):
             del G_mst.graph[edge[1]]((egde[0],10,1))
     return G_mst
 #p144
-import time
 
 
 
 
-def temps_necessaire(filename,t,n):
-    G=graph_from_file_4(filename)
-    H=all_paths_u(G,t[0],t[1])[:n]
-    K1=[]
-    for L in H:
-        K1.append(power(G,L))
-    return (min(K1),H[K1.index(min(K1))])
-
-
-
-
-
-a=time.perf_counter()
-temps_necessaire("/home/onyxia/Projet-de-programmation/input/routes.2.in",(6,15),100)
-b=time.perf_counter()
-print(b-a)
 
 ###### QUESTION 14
 
