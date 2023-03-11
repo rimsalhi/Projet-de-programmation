@@ -1,33 +1,7 @@
 from graph import Graph, graph_from_file
 
-###### QUESTION 2
 
-#import copy 
-# def parcours_en_prof(A,a):
-#     D=copy.deepcopy(A) 
-#     if (A[a]==[]) or (not(a in A)) or (a==None):
-#         return []
-#     elif len(A[a])==1:
-#         del D[a]
-#         for k in A[A[a][0][0]]:
-#             if k[0]==a:
-#                 D[A[a][0][0]].remove(k)
-#         return [a,A[a][0][0]]+parcours_en_prof(D,A[a][0][0])
-#     else: 
-#         L=[]
-#         for i in range(len(A[a])): 
-#             D=copy.deepcopy(A)
-#             #on va isoler chaque branche sortant de a
-#             D[a]=[A[a][i]]
-#             for j in range(len(A[a])):
-#                 if j!=i:
-#                     del D[A[a][j][0]]
-#                     for k in A[A[a][j][0]]:
-#                         if k[0]!=a:
-#                             del D[k[0]]  
-#             L+=parcours_en_prof(D,a)+parcours_en_prof(D,a)[-1:1:-1]
-#         return L 
-#print(parcours_en_prof(A.graph, 1))
+###### QUESTION 2
 
 def explore(G,v,s):
     """A recursive function that updates a set s (initially empty) 
@@ -65,6 +39,43 @@ def connected_components_set(G):
         if (explore(G,v,s) in L)==False:
             L.append(explore(G,v,s))
     return L 
+
+"""Complexity analysis: With V: number of the graph's node and E: number of its edges
+- explore runs through all the graph's nodes. Its complexity is O(V)
+- In the worst-case scenerio, connected_components_set runs explore for each node in the graph.
+Therefore, its complexity is O(V*E).
+"""
+
+
+###### QUESTION 3
+
+def get_path_with_power(G,p,t):
+    """Uses a Breadth-search first to look for t[1], 
+    starting from t[0], while stocking the traversed nodes in path.
+
+    Args:
+        G (Graph): 
+        p (integer): the power of the truck ;  
+                     the maximal power of the edges the truck can traverse.
+        t (tuple): the route (le trajet)
+
+    Returns:
+        list: a possible path for the truck to go from t[0] to t[1] if exists
+        None: if not
+    """
+    queue=[[t[0]]]
+    while queue!=[]:
+        path=queue.pop()
+        node=path[-1]
+        if node==t[1]:
+            return path
+        for k in G.graph[node]:
+            if (k[1]<=p) and (k[0] not in path):
+                queue.append(path+[k[0]])
+    return None
+
+""" Complexity analysis: 
+"""
 
 ###### Fonctions utilisées dans les questions 3, 5 et 6
 """The following code returns, given two nodes v and u and a Graph G
@@ -333,7 +344,7 @@ def union_find(G):
         a=find(parents, edge[0])
         b=find(parents, edge[1])
         if a==b:
-            retrun True
+            return True
         else:
             union(parents,edge[0],edge[1])
     return False
@@ -488,4 +499,31 @@ B.add_edge(1,13,0)
 print(B) 
 print(get_path_with_power(B,0,(1,5)))
 print(min_power(B,(1,5)))
+ 
+#import copy 
+# def parcours_en_prof(A,a):
+#     D=copy.deepcopy(A) 
+#     if (A[a]==[]) or (not(a in A)) or (a==None):
+#         return []
+#     elif len(A[a])==1:
+#         del D[a]
+#         for k in A[A[a][0][0]]:
+#             if k[0]==a:
+#                 D[A[a][0][0]].remove(k)
+#         return [a,A[a][0][0]]+parcours_en_prof(D,A[a][0][0])
+#     else: 
+#         L=[]
+#         for i in range(len(A[a])): 
+#             D=copy.deepcopy(A)
+#             #We isolate each branch coming out of a
+#             D[a]=[A[a][i]]
+#             for j in range(len(A[a])):
+#                 if j!=i:
+#                     del D[A[a][j][0]]
+#                     for k in A[A[a][j][0]]:
+#                         if k[0]!=a:
+#                             del D[k[0]]  
+#             L+=parcours_en_prof(D,a)+parcours_en_prof(D,a)[-1:1:-1]
+#         return L 
+#print(parcours_en_prof(A.graph, 1))
 
