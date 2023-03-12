@@ -242,11 +242,11 @@ import time
 import itertools
 
 def necessary_time(filename):
-    """Returns the necessary time to find the minimal power path if exists for the route t.
+    """Returns the necessary time to find all the minimal power path if exists 
+    for all the routes in the graph.
 
     Args:
         filename (str): the path of the graph file 
-        t (tuple): the rout 
 
     Returns:
         float: the necessary time in seconds
@@ -275,6 +275,7 @@ def union (parent,n,m):
     """ Modifies the dictionary parent in order the make n the parent of m 
     when they belong to the same connected component."""
     parent[m]=n
+def tri_edges(L): #trier les edges !!!!!!!!!!!!!!!!!
 
 def kruskal(G):
     """Returns the minimal spanning tree of the graph G using the Kruskal algorithm.
@@ -303,7 +304,6 @@ def kruskal(G):
 
 ###### QUESTION 14
 
-
 def rank(A,v):
     if v==A.nodes[0]:
         return 0
@@ -324,7 +324,7 @@ def youngest_common_ancestor(A,t):
             a,b=b,a
     return a
 
-def power_min_tree(A,t):
+def min_power_tree(A,t):
     a1,a2=t[0],t[1]
     L1,L2=[a1],[a2]
     x=youngest_common_ancestor(A, t)
@@ -343,6 +343,32 @@ def power_min_tree(A,t):
 
 
 ###### QUESTION 15 
+
+""" Complexity analysis: 
+"""
+
+def necessary_time_tree(filename):
+    """Returns the necessary time to find all the minimal power path if exists 
+    for all the routes in the graph using the minimal spanning tree.
+
+    Args:
+        filename (str): the path of the graph file 
+
+    Returns:
+        float: the necessary time in seconds
+    """
+    G=graph_from_file_route(filename)
+    a=time.perf_counter()
+    A=kruskal(G)
+    for t in itertools.combinations(G.graph, 2):
+        mP=min_power_tree(A,t)
+    b=time.perf_counter()
+    return b-a
+
+
+#print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+# Determining the minimal power of all routes in route.1 and their associated paths takes about 26s.
+
 
 
 
@@ -515,12 +541,6 @@ def min_power(G,v,u):
         pw=min(Powers)
         i=Powers.index(pw) 
         return Paths[i],pw
-
-
-###### QUESTION 8
-
-
-###### QUESTION 14
 
 
 
