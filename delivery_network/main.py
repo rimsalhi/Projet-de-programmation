@@ -264,36 +264,91 @@ def necessary_time(filename):
 
 ###### QUESTION 12
 
-def find(parents,n):
-    if parents[n]==n:
+def find(parent,n):
+    """ Returns the parent of n; the representative of the connected component it belongs to."""
+    if parent[n]==n:
         return n
     else:
-         return find(parents, parents[n])
-def union (parents,n,m):
-    parents[n]=m
+         return find(parent, parent[n])
 
-def union_find(G):
-    parents={{node} for node in G.nodes}
-    for edge in edges(G):
-        a=find(parents, edge[0])
-        b=find(parents, edge[1])
-        if a==b:
-            return True
-        else:
-            union(parents,edge[0],edge[1])
-    return False
+def union (parent,n,m):
+    """ Modifies the dictionary parent in order the make n the parent of m 
+    when they belong to the same connected component."""
+    parent[m]=n
 
 def kruskal(G):
+    """Returns the minimal spanning tree of the graph G using the Kruskal algorithm.
+    """
     G_mst=Graph(G.nodes)
-    Pointer=dict([(n, n) for n in nodes])
-    for edge in edges(G): #Les edges doivent être triés par ordre de poids croissant.
+    parent={n: n for n in G.nodes} # Initially, each node is its parent.
+    for edge in tri(edges(G)): # We go through the edges in an increasing order of power 
         edge2=list(edge)
-        Pointer[edge2[0]],Pointer[edge2[1]]=find(edge2[0])...
-        G_mst.add_edge(edge[0],edge[1],10)
-        if union_find(G_mst)==False:
-            del G_mst.graph[edge[0]]((egde[1],10,1))
-            del G_mst.graph[edge[1]]((egde[0],10,1))
+        node1=edge2[0]
+        node2=edge2[1]
+        a=find(parent,node1)
+        b=find(parent,node2)
+        if a!=b: # if a and b have diffrent parents, so adding the edge won't create a cycle.
+            for k  in G.graph[node1]:
+                if k[0]==node2:
+                    p=k[1] # p is the power of the edge.
+                    d=k[2] # d is the distance of the edge.
+            G_mst.add_edge(node1,node2,p,d)
+            union(parent,node1,node2) # Since node1 and node2 are related by edge, 
+                                      # they're in the same component and they should have the same parent
     return G_mst
+
+""" Complexity analysis: 
+"""
+
+
+###### QUESTION 14
+
+
+def rank(A,v):
+    if v==A.nodes[0]:
+        return 0
+    for i in range(len(A.nodes)):
+        for k in A.graph[A.nodes[i]]:
+            if k[0]==v:
+                return 1 + rank(A,A.nodes[i])
+
+def youngest_common_ancestor(A,t):
+    a=t[0]
+    b=t[1]
+    while a!=b:
+        if rank(A,b) >= rank(A,a):
+            for k in A.graph[b]:
+                if rank(A,k[0]) < rank(A,b):
+                    b=k[0]
+        else: 
+            a,b=b,a
+    return a
+
+def power_min_tree(A,t):
+    a1,a2=t[0],t[1]
+    L1,L2=[a1],[a2]
+    x=youngest_common_ancestor(A, t)
+    while (a1!=x) or (a2!=x):
+        for k in G.graph[a1]:
+            if rank (A,a1) > rank(A,k[0]):
+                L1.append(k[0])
+                a1=k[0]
+        for k in G.graph[a2]:
+            if rank(A,a2) > rank(A,k[0]):
+                L2.append(k[0])
+                a2=k[0]
+    L2.pop()
+    return L1+L2[::-1]
+#ajouter la puissance 
+
+
+###### QUESTION 15 
+
+
+
+
+        
+
 
 
 
@@ -425,18 +480,6 @@ def get_path_with_power(G,p,t):
         print("Le chemin est possible")
         return H[j]
 
-## QUESTION 3 * 
-def get_path_with_power(G,p,t):
-    queue=[[t[0]]]
-    while queue!=[]:
-        path=queue.pop()
-        node=path[-1]
-        if node==t[1]:
-            return path
-        for k in G.graph[node]:
-            if (k[1]<=p) and (k[0] in path)==False:
-                queue.append(path+[k[0]])
-    print("Le chemin n'est pas possible")
 
 ###### QUESTION 5
 def distance(G,L):
@@ -479,32 +522,6 @@ def min_power(G,v,u):
 
 ###### QUESTION 14
 
-def rank(A,v):
-    if v==A.nodes[0]:
-        return 0
-    for i in range(len(A.nodes)):
-        for k in A.graph[A.nodes[i]]:
-            if k[0]==v:
-                return 1 + rank(A,A.nodes[i])
-
-def youngest_common_ancestor(A,v,u):
-    a=v
-    b=u
-    while a!=b:
-        if rank(A,b) >= rank(A,a):
-            for k in A.graph[b]:
-                if rank(A,k[0]) < rank(A,b):
-                    b=k[0]
-        else: 
-            a,b=b,a
-    return a
-
-print(youngest_common_ancestor(A, 12, 5))
-
-
-
-def power_min_tree(A,v,u):
-    ancestor=youngest_common_ancestor(A, 12, 5)
 
 
 
