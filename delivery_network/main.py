@@ -227,18 +227,21 @@ def graph_from_file_route(filename):
     L=[]
     for i in range(len(lines)):
         L.append(lines[i].split())
-    M=list({int(line[0]) for line in L})
+    x=L.pop(0)
+    s0={int(line[0]) for line in L}
+    s1={int(line[1]) for line in L}
+    M=list(s1.union(s0))
     G=Graph(M)
-    G.nb_edges=int(L[0][0])
-    L.pop(0)
+    G.nb_edges=int(x[0])
     for line in L:
         if line[0]!=line[1]:
             G.add_edge(int(line[0]),int(line[1]),int(line[2]))
     return G
 
 import time
+import itertools
 
-def necessary_time(filename,t):
+def necessary_time(filename):
     """Returns the necessary time to find the minimal power path if exists for the route t.
 
     Args:
@@ -246,16 +249,58 @@ def necessary_time(filename,t):
         t (tuple): the rout 
 
     Returns:
-        float: the necessary time 
+        float: the necessary time in seconds
     """
     G=graph_from_file_route(filename)
     a=time.perf_counter()
-    print(min_power(G, t))
+    for t in itertools.combinations(G.graph, 2):
+        mP=min_power(G,t)
     b=time.perf_counter()
     return b-a
 
-#print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/routes.1.in", (6,15)))
-# Determining the minimal power for route.1  and its path takes about 0.017s.
+#print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+# Determining the minimal power of all routes in route.1 and their associated paths takes about 26s.
+
+
+###### QUESTION 12
+
+def find(parents,n):
+    if parents[n]==n:
+        return n
+    else:
+         return find(parents, parents[n])
+def union (parents,n,m):
+    parents[n]=m
+
+def union_find(G):
+    parents={{node} for node in G.nodes}
+    for edge in edges(G):
+        a=find(parents, edge[0])
+        b=find(parents, edge[1])
+        if a==b:
+            return True
+        else:
+            union(parents,edge[0],edge[1])
+    return False
+
+def kruskal(G):
+    G_mst=Graph(G.nodes)
+    Pointer=dict([(n, n) for n in nodes])
+    for edge in edges(G): #Les edges doivent être triés par ordre de poids croissant.
+        edge2=list(edge)
+        Pointer[edge2[0]],Pointer[edge2[1]]=find(edge2[0])...
+        G_mst.add_edge(edge[0],edge[1],10)
+        if union_find(G_mst)==False:
+            del G_mst.graph[edge[0]]((egde[1],10,1))
+            del G_mst.graph[edge[1]]((egde[0],10,1))
+    return G_mst
+
+
+
+
+
+
+
 
 
 
@@ -430,46 +475,6 @@ def min_power(G,v,u):
 
 
 ###### QUESTION 8
-
-###### QUESTION 12
-def edges(G):
-    H=[]
-    for node in G.graph: 
-        for k in G.graph[node]:
-            if ({node,k[0]} in H)==False:
-                H.append({node,k[0]})
-    return H
-def find(parents,n):
-    if parents[n]==n:
-        return n
-    else:
-         return find(parents, parents[n])
-def union (parents,n,m):
-    parents[n]=m
-
-def union_find(G):
-    parents={{node} for node in G.nodes}
-    for edge in edges(G):
-        a=find(parents, edge[0])
-        b=find(parents, edge[1])
-        if a==b:
-            return True
-        else:
-            union(parents,edge[0],edge[1])
-    return False
-
-def kruskal(G):
-    G_mst=Graph(G.nodes)
-    for edge in edges(G): #Les edges doivent être triés par ordre de poids croissant.
-        G_mst.add_edge(edge[0],edge[1],10)
-        if union_find(G_mst)==False:
-            del G_mst.graph[edge[0]]((egde[1],10,1))
-            del G_mst.graph[edge[1]]((egde[0],10,1))
-    return G_mst
-#p144
-
-
-
 
 
 ###### QUESTION 14
