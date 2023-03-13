@@ -106,7 +106,7 @@ def graph_from_file_4(filename):
     M=[i for i in range(1,int(L[0][0])+1)]
     G=Graph(M)
     G.nb_edges=int(L[0][1])
-    print(L[0])
+    L.pop(0)
     for line in L:
         if len(line)==4: 
             d=int(line[3])
@@ -245,7 +245,7 @@ def necessary_time(filename1,filename2):
         filename (str): the path of the graph file 
 
     Returns:
-        float: the necessary time in seconds
+        float: the necessary time
     """
     G=graph_from_file_4(filename1)
     routes=route_from_file(filename2)
@@ -259,9 +259,10 @@ def necessary_time(filename1,filename2):
 #                    "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
 # Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
 
-print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
-                     "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
-# Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
+# print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
+#                      "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
+# Determining the minimal power of all routes in route.1 and their associated paths takes more than 1h. 
+# Judging by the complexity, it should take up to several hours. 
 
 
 
@@ -278,14 +279,54 @@ def union (parent,n,m):
     """ Modifies the dictionary parent in order the make n the parent of m 
     when they belong to the same connected component."""
     parent[m]=n
-def tri_edges(L): #trier les edges !!!!!!!!!!!!!!!!!
+
+def merge(P1,P2,L1,L2):
+    M=[]
+    i,j=0,0
+    while i < len(L1) and j < len(L2) : 
+        if P1[i] <= P2[i]:
+            M.append(L1[i])
+            i+=1
+        else:
+            M.append(L2[j])
+            j+=1
+    while i < len(L1):
+        M.append(L1[i])
+        i+=1
+    while j < len(L2): 
+        M.append(L2[j])
+        j+=1
+    return M 
+    
+def merge_sort(L,P):
+    if len(L)<2:
+        return L
+    else:
+        m=len(L)//2
+        L1=merge_sort(L[:m], P[:m])
+        L2=merge_sort(L[m:],P[m:])
+        P1=merge_sort(P[:m],P[:m])
+        P2=merge_sort(P[m:],P[m:])
+        return merge(P1,P2,L1,L2)
+
+def merge_edges(G):
+    L=edges(G)
+    P=[]
+    for edge in L: 
+        edge2=list(edge)
+        node1 = edge2[0]
+        node2 = edge2[1]
+        for k in G.graph[node1]:
+            if k[0]==node2:
+                P.append(k[1])
+    return merge_sort(L,P)
 
 def kruskal(G):
     """Returns the minimal spanning tree of the graph G using the Kruskal algorithm.
     """
     G_mst=Graph(G.nodes)
     parent={n: n for n in G.nodes} # Initially, each node is its parent.
-    for edge in tri(edges(G)): # We go through the edges in an increasing order of power 
+    for edge in merge_edges(G): # We go through the edges in an increasing order of power 
         edge2=list(edge)
         node1=edge2[0]
         node2=edge2[1]
@@ -332,25 +373,28 @@ def min_power_tree(A,t):
     L1,L2=[a1],[a2]
     x=youngest_common_ancestor(A, t)
     while (a1!=x) or (a2!=x):
-        for k in G.graph[a1]:
+        for k in A.graph[a1]:
             if rank (A,a1) > rank(A,k[0]):
                 L1.append(k[0])
                 a1=k[0]
-        for k in G.graph[a2]:
+        for k in A.graph[a2]:
             if rank(A,a2) > rank(A,k[0]):
                 L2.append(k[0])
                 a2=k[0]
     L2.pop()
-    return L1+L2[::-1]
-#ajouter la puissance 
-
-
-###### QUESTION 15 
+    path = L1+L2[::-1]
+    p=0
+    for i in range(len(path)-1):
+        for k in A.graph[path[i]]:
+            if k[0]==path[i+1]: 
+                if k[1] > p:
+                    p=k[1]
+    return path,p
 
 """ Complexity analysis: 
 """
 
-def necessary_time_tree(filename):
+def necessary_time_tree(filename1,filename2):
     """Returns the necessary time to find all the minimal power path if exists 
     for all the routes in the graph using the minimal spanning tree.
 
@@ -360,41 +404,33 @@ def necessary_time_tree(filename):
     Returns:
         float: the necessary time in seconds
     """
-    G=graph_from_file_route(filename)
+    G=graph_from_file_4(filename1)
+    routes=route_from_file(filename2)
     a=time.perf_counter()
     A=kruskal(G)
-    for t in itertools.combinations(G.graph, 2):
-        mP=min_power_tree(A,t)
+    for t in routes:
+        mP=min_power_tree(A, t)
     b=time.perf_counter()
     return b-a
 
 
-#print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
-# Determining the minimal power of all routes in route.1 and their associated paths takes about 26s.
+print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/network.1.in",
+                     "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+
+import time 
+G=graph_from_file_4("/home/onyxia/work/Projet-de-programmation/input/network.1.in")
+r=route_from_file("/home/onyxia/work/Projet-de-programmation/input/routes.1.in")
+A=kruskal(G)
+a=time.perf_counter()
+for t in r: 
+    mP=min_power_tree(A, t)
+b=time.perf_counter()
+print(b-a)
 
 
 
 
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+##Autres méthodes 
 
 ###### Fonctions utilisées dans les questions 3, 5 et 6
 """The following code returns, given two nodes v and u and a Graph G
@@ -546,98 +582,6 @@ def min_power(G,v,u):
         i=Powers.index(pw) 
         return Paths[i],pw
 
-
-
-
-A=Graph([0,1,3,4,5,6,7,12,13,10])
-A.add_edge(0,3,0)
-A.add_edge(0,1,0)
-A.add_edge(4,3,0)
-A.add_edge(4,12,0)
-A.add_edge(5,3,0)
-A.add_edge(10,5,0)
-A.add_edge(13,5,0)
-A.add_edge(6,1,0)
-A.add_edge(7,1,0)
-print(A)
-print(rank(A,13))    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-print(min_power(B,1,5))
-G_rep(B, 1, 5)
-
-# problème s'il y a un cycle interne : voir B 
-# La fonction fin a pour but de vérifier la condition d'arrêt de la fonction récursive
-# S'il reste plus des choix à faire (on est tombé sur u ou on est tombé sur la case de départ)
-        # on passe à la branche suivante, sinon on poursuit  
- 
-#Un exemple simple de graphe 
-B=Graph([1,2,3,4,5,6,12])
-B.add_edge(1,4,0)
-B.add_edge(4,5,0)
-B.add_edge(1,2,0)
-B.add_edge(1,3,0)
-B.add_edge(6,12,0)
-print(B)       
-
-s=set()
-print(explore(B,1,s))           
-print(connected_components_set(B))
-
-print(graph_from_file_4("/home/onyxia/work/lost+found/network.04.in"))
-# Les fichiers 00 01 02 et 03 présentent dans la première ligne
-# le nombre de noeuds puis le nombre d'arêtes, c'est inversé dans le fichier 0' 
-#Question 5
-
-def explore2(G,v,L):
-    for k in G.graph[v]:
-        if (k[0] in L)==False:
-            L.append(k[0])
-            explore2(G,k[0],L)
-    return L 
-
-#g = graph_from_file("/home/onyxia/work/input /network.00.in")
-#print(g)
-
-
-H=[[1]]
-# Prob de cycle interne : qui sépare le départ et l'arrivée
-# le bonhomme soit se trouve perdu 
-# (chemin qui finit par un noeud à plusieurs connexions qui n'est pas le départ ou l'arrivée ) : fin jamais true
-# soit se trouve piégé dans une boucle infinie avec if (k[0]!=H[i][-1])==False:
-# lorsqu'on autorise tout pas qui n'est pas de la marche arrière; ce n'est pas sufisant 
- 
-B=Graph([1,2,3,4,5,6,12,13,14])
-B.add_edge(4,6,0)
-B.add_edge(6,12,0)
-B.add_edge(2, 5, 0)
-B.add_edge(6, 5, 0)
-#B.add_edge(4,2,0)
-# on a chemin qui finit par 5 parce que pour revenir à la case de départ, il est obligé de passer par des chemins déjà parcourus
-B.add_edge(14,1,0)
-B.add_edge(13,14,0)
-B.add_edge(1,4,0)
-B.add_edge(1,2,10)
-B.add_edge(1,3,0)
-B.add_edge(1,13,0)
-print(B) 
-print(get_path_with_power(B,0,(1,5)))
-print(min_power(B,(1,5)))
- 
 #import copy 
 # def parcours_en_prof(A,a):
 #     D=copy.deepcopy(A) 
