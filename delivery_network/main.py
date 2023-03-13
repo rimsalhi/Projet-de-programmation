@@ -106,7 +106,7 @@ def graph_from_file_4(filename):
     M=[i for i in range(1,int(L[0][0])+1)]
     G=Graph(M)
     G.nb_edges=int(L[0][1])
-    L.pop(0)
+    print(L[0])
     for line in L:
         if len(line)==4: 
             d=int(line[3])
@@ -208,40 +208,36 @@ def G_rep(G,t):
 
 ###### QUESTION 10
 
-def graph_from_file_route(filename):
-    """Reads a text file and returns the graph as an object of the Graph class.
+def route_from_file(filename):
+    """Reads a text file and returns a list of routes. 
 
     The file should have the following format: 
-        The first line of the file is 'n'
-        The next n lines have 'node1 node2 power_min dist' or 'node1 node2 power_min' (if dist is missing, it will be set to 1 by default)
+        The first line of the file is 'n' : number of routes
+        The next n lines have 'node1 node2 utility of the route (node1,node2)'.
         All values are integers.
 
     Args:
         filename (str): the path of the file
 
     Returns:
-        Graph: a Graph object with the graph from the file
+        dict: The keys are routes : tuples of nodes. 
+              The value of each key is its utility.
     """
     f=open(filename, 'r')
     lines=f.readlines()  
     L=[]
     for i in range(len(lines)):
         L.append(lines[i].split())
-    x=L.pop(0)
-    s0={int(line[0]) for line in L}
-    s1={int(line[1]) for line in L}
-    M=list(s1.union(s0))
-    G=Graph(M)
-    G.nb_edges=int(x[0])
+    L.pop(0)
+    routes={}
     for line in L:
         if line[0]!=line[1]:
-            G.add_edge(int(line[0]),int(line[1]),int(line[2]))
-    return G
+            routes[(int(line[0]),int(line[1]))]=int(line[2])
+    return routes
 
 import time
-import itertools
 
-def necessary_time(filename):
+def necessary_time(filename1,filename2):
     """Returns the necessary time to find all the minimal power path if exists 
     for all the routes in the graph.
 
@@ -251,15 +247,22 @@ def necessary_time(filename):
     Returns:
         float: the necessary time in seconds
     """
-    G=graph_from_file_route(filename)
+    G=graph_from_file_4(filename1)
+    routes=route_from_file(filename2)
     a=time.perf_counter()
-    for t in itertools.combinations(G.graph, 2):
+    for t in routes:
         mP=min_power(G,t)
     b=time.perf_counter()
     return b-a
 
-#print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
-# Determining the minimal power of all routes in route.1 and their associated paths takes about 26s.
+#print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.1.in",
+#                    "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+# Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
+
+print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
+                     "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
+# Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
+
 
 
 ###### QUESTION 12
@@ -368,6 +371,7 @@ def necessary_time_tree(filename):
 
 #print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
 # Determining the minimal power of all routes in route.1 and their associated paths takes about 26s.
+
 
 
 
