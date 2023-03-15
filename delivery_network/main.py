@@ -83,6 +83,7 @@ We conclude that the complexity is O(V+E).
 
 
 ###### QUESTION 4
+
 def graph_from_file_4(filename):
     """Reads a text file and returns the graph as an object of the Graph class.
 
@@ -343,7 +344,16 @@ def kruskal(G):
     return G_mst
 
 """ Complexity analysis: 
+The time complexity of kruskal's algorithm is O(E*logV).
 """
+
+
+###### QUESTION 13
+
+for i in ['0','1','2','3','4']:
+    graphname="/home/onyxia/work/Projet-de-programmation/input/network.0"+i+"0.in"
+    G=graph_from_file_4(graphname)
+    print(kruskal(G))
 
 
 ###### QUESTION 14
@@ -356,6 +366,10 @@ def rank(A,v):
             if k[0]==v:
                 return 1 + rank(A,A.nodes[i])
 
+""" Complexity analysis:
+The complexity of rank is O(E*V).
+"""
+
 def youngest_common_ancestor(A,t):
     a=t[0]
     b=t[1]
@@ -367,6 +381,11 @@ def youngest_common_ancestor(A,t):
         else: 
             a,b=b,a
     return a
+
+""" Complexity analysis:
+In worst case scenerios, we calculate the rank of all nodes, V times.
+The complexity is therefore O(E²*V).
+"""
 
 def min_power_tree(A,t):
     a1,a2=t[0],t[1]
@@ -391,8 +410,14 @@ def min_power_tree(A,t):
                     p=k[1]
     return path,p
 
-""" Complexity analysis: 
+
+###### QUESTION 15
+
+""" Complexity analysis:
+According to the previous analysis, the complexity of min_power_tree is still O(V) if we only consider V. 
 """
+
+# Time estimation 
 
 def necessary_time_tree(filename1,filename2):
     """Returns the necessary time to find all the minimal power path if exists 
@@ -406,206 +431,193 @@ def necessary_time_tree(filename1,filename2):
     """
     G=graph_from_file_4(filename1)
     routes=route_from_file(filename2)
+    A=kruskal(G) # We don't count the pre-processing time. 
     a=time.perf_counter()
-    A=kruskal(G)
     for t in routes:
         mP=min_power_tree(A, t)
     b=time.perf_counter()
     return b-a
 
+# print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/network.1.in",
+#                      "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
 
-print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/network.1.in",
-                     "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+# print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
+#                      "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
 
-import time 
-G=graph_from_file_4("/home/onyxia/work/Projet-de-programmation/input/network.1.in")
-r=route_from_file("/home/onyxia/work/Projet-de-programmation/input/routes.1.in")
-A=kruskal(G)
-a=time.perf_counter()
-for t in r: 
-    mP=min_power_tree(A, t)
-b=time.perf_counter()
-print(b-a)
-
-
-
-
-##Autres méthodes 
-
-###### Fonctions utilisées dans les questions 3, 5 et 6
-"""The following code returns, given two nodes v and u and a Graph G
-    all the paths the truck could possibly cover starting its journey from v looking for u.
-    The journey could end - in the destination u 
-                          - in the starting point v (we spot those with 'STOP')
-                          - in the end of a road (a node with one connexion)
+""" Executing these commands took more than 4 and a half hours. 
+We tested these functions for one route and it worked. But, we ignore if it's optimal.
+In fact, the pre-processing (determining the minimal spanning tree) time is huge
+and we don't know the time necessary for determining the minimal power of all routes 
+in order to compare it with the time we found in question 10. 
 """
-def end(G,u,H):
-    """Checks the stopping condition of the recursive function all_paths
 
-    Args:
-        G (Graph): the graph the truck is navigating
-        u (integer): the destination node
-        H (list): a list of partial paths the truck could cover 
-
-    Returns:
-        Boolean: True if there are no more paths the truck could cover and all_paths should stop:
-        All paths in H are either - ended in the destination u 
-                            or    - ended in 'STOP'
-                            or    - ended in a single connexion node
-
-        False otherwise.   
-    """
-    if len(H)==1:
-        return False
-    for L in H: 
-        if (L[-1]!=u) and (L[-1]!='STOP') and (len(G.graph[L[-1]])!=1):
-            return False
-    return True
-
-def all_paths(G,v,u,H):
-    """a recursive function that given all first n possible steps 
-    the truck could take starting from v and returns all first n+1 possible steps
-    and stops when end is True (no further possible steps that could lead to u).
-    It's a choice tree.
-    Args:
-        G (Graph): the graph the truck is navigating 
-        v (integer): the starting point
-        u (integer): the detination
-        H (list): list of partial paths
-
-    Returns:
-        H: a list of possible paths (lists) starting from v 
-    """
-    if end(G,u,H)==True:
-        return H
-    i=0
-    # i is the level of the branch in the choice tree
-    while (i <len(H)): 
-        if H[i][-1]==u:
-            i+=1
-            continue
-        elif (H[i][-1]==H[i][0]) and (len(H[i])>1):
-                H[i].append('STOP')
-                i+=1
-                continue
-        elif H[i][-1]=='STOP':
-            i+=1
-            continue
-        s=0  
-        for k in G.graph[H[i][-1]]: 
-            if (k[0] in H[i][1:])==False: 
-                # We only allow v to be repeated in a path in order to spot a path that leads to the starting point
-                H.insert(i+1,H[i]+[k[0]])
-                s+=1 #s is the number of the new branches 'les branches filles'
-        if s>0:        
-            H.pop(i) # 'les branches filles' replace 'la branche mère'
-            i+=s # we move on to the next 'branche mère'
-        else:
-            i+=1 
-    #print(H)
-    return all_paths(G,v,u,H)
-
-def all_paths_u(G,v,u):
-    """Uses all_paths to return all possible paths 
-    starting from v ending in u
-
-    Args:
-        G (Graph): the graph the truck is navigating
-        v (integer): the starting node
-        u (integer): the destination node 
-
-    Returns:
-        a list of possible paths relating the starting node v and the destination u
-    """
-    H=all_paths(G,v,u,[[v]])
-    P=[]
-    for L in H:
-        if L[-1]==u:
-            P.append(L)
-    return P
-
-def power(G,L):
-    """Returns the minimal power a truck should have to be able to cover the path L"""
-    max=0
-    for i in range(len(L)-1): 
-        for k in G.graph[L[i]]:
-            if k[0]==L[i+1]:
-                if k[1] > max:
-                    max=k[1]
-    return max
-
-###### QUESTION 3
-def get_path_with_power(G,p,t):
-    H=all_paths_u(G,t[0],t[1])
-    j=0
-    while (p<power(G,H[j])) and (j<len(H)-1):
-            j+=1
-    if j==len(H):
-        return None
-    else:
-        print("Le chemin est possible")
-        return H[j]
+# Creating the files containing the minimal powers of routes for route.1, route.2 and route.3
+for i in [1,2,3]:
+    f = open("/home/onyxia/work/Projet-de-programmation/delivery_network/route."+str(i), "a")
+    graphname="/home/onyxia/work/Projet-de-programmation/input/network." + str(i) +".in"
+    routename="/home/onyxia/work/Projet-de-programmation/input/routes." + str(i) +".in"
+    G=graph_from_file_4(graphname)
+    A=kruskal(G)
+    route=route_from_file(routename)
+    for t in route:
+        mP=min_power_tree(A,t)[1]
+        f.write(str(mP) + '\n')
+    f.close()
 
 
-###### QUESTION 5
-def distance(G,L):
-    """Returns the distance of the path L"""
-    s=0
-    for i in range(len(L)-1): 
-        for k in G.graph[L[i]]:
-            if k[0]==L[i+1]:
-                s+=k[2]
-    return s
+""" Other methodes with higher complexities : 
+The following code was the first thing we wrote for questions 3, 4, 5 and 6.
+It works but we gave it up for its exponentinal complexity.
+"""
 
-def get_path_distance_min(G,p,t):
-    if get_path_with_power(G,p,t)==None:
-        return None
-    H=all_path_u(G,t[0],t[1])
-    d=distance(G,H[0])
-    for L in H:
-        if power(G,L)>p:
-            continue
-    else:
-        if distance(G,L)<d:
-            d=distance(G,L)
-            j=H.index(L)
-            return H[j]
+# ###### Funcions used in questions 3, 5 et 6
+# """The following code returns, given two nodes v and u and a Graph G
+#     all the paths the truck could possibly cover starting its journey from v looking for u.
+#     The journey could end - in the destination u 
+#                           - in the starting point v (we spot those with 'STOP')
+#                           - in the end of a road (a node with one connexion)
+# """
+# def end(G,u,H):
+#     """Checks the stopping condition of the recursive function all_paths
 
-###### QUESTION 6 
-def min_power(G,v,u):
-    Paths=all_paths_u(G,v,u)
-    if Paths==[]:
-        return "Le chemin n'est pas possible"
-    else: 
-        Powers=[power(G,L) for L in Paths]
-        pw=min(Powers)
-        i=Powers.index(pw) 
-        return Paths[i],pw
+#     Args:
+#         G (Graph): the graph the truck is navigating
+#         u (integer): the destination node
+#         H (list): a list of partial paths the truck could cover 
 
-#import copy 
-# def parcours_en_prof(A,a):
-#     D=copy.deepcopy(A) 
-#     if (A[a]==[]) or (not(a in A)) or (a==None):
-#         return []
-#     elif len(A[a])==1:
-#         del D[a]
-#         for k in A[A[a][0][0]]:
-#             if k[0]==a:
-#                 D[A[a][0][0]].remove(k)
-#         return [a,A[a][0][0]]+parcours_en_prof(D,A[a][0][0])
+#     Returns:
+#         Boolean: True if there are no more paths the truck could cover and all_paths should stop:
+#         All paths in H are either - ended in the destination u 
+#                             or    - ended in 'STOP'
+#                             or    - ended in a single connexion node
+
+#         False otherwise.   
+#     """
+#     if len(H)==1:
+#         return False
+#     for L in H: 
+#         if (L[-1]!=u) and (L[-1]!='STOP') and (len(G.graph[L[-1]])!=1):
+#             return False
+#     return True
+
+# def all_paths(G,v,u,H):
+#     """a recursive function that given all first n possible steps 
+#     the truck could take starting from v and returns all first n+1 possible steps
+#     and stops when end is True (no further possible steps that could lead to u).
+#     It's a choice tree.
+#     Args:
+#         G (Graph): the graph the truck is navigating 
+#         v (integer): the starting point
+#         u (integer): the detination
+#         H (list): list of partial paths
+
+#     Returns:
+#         H: a list of possible paths (lists) starting from v 
+#     """
+#     if end(G,u,H)==True:
+#         return H
+#     i=0
+#     # i is the level of the branch in the choice tree
+#     while (i <len(H)): 
+#         if H[i][-1]==u:
+#             i+=1
+#             continue
+#         elif (H[i][-1]==H[i][0]) and (len(H[i])>1):
+#                 H[i].append('STOP')
+#                 i+=1
+#                 continue
+#         elif H[i][-1]=='STOP':
+#             i+=1
+#             continue
+#         s=0  
+#         for k in G.graph[H[i][-1]]: 
+#             if (k[0] in H[i][1:])==False: 
+#                 # We only allow v to be repeated in a path in order to spot a path that leads to the starting point
+#                 H.insert(i+1,H[i]+[k[0]])
+#                 s+=1 #s is the number of the new branches 'les branches filles'
+#         if s>0:        
+#             H.pop(i) # 'les branches filles' replace 'la branche mère'
+#             i+=s # we move on to the next 'branche mère'
+#         else:
+#             i+=1 
+#     #print(H)
+#     return all_paths(G,v,u,H)
+
+# def all_paths_u(G,v,u):
+#     """Uses all_paths to return all possible paths 
+#     starting from v ending in u
+
+#     Args:
+#         G (Graph): the graph the truck is navigating
+#         v (integer): the starting node
+#         u (integer): the destination node 
+
+#     Returns:
+#         a list of possible paths relating the starting node v and the destination u
+#     """
+#     H=all_paths(G,v,u,[[v]])
+#     P=[]
+#     for L in H:
+#         if L[-1]==u:
+#             P.append(L)
+#     return P
+
+# def power(G,L):
+#     """Returns the minimal power a truck should have to be able to cover the path L"""
+#     max=0
+#     for i in range(len(L)-1): 
+#         for k in G.graph[L[i]]:
+#             if k[0]==L[i+1]:
+#                 if k[1] > max:
+#                     max=k[1]
+#     return max
+
+# ###### QUESTION 3
+# def get_path_with_power(G,p,t):
+#     H=all_paths_u(G,t[0],t[1])
+#     j=0
+#     while (p<power(G,H[j])) and (j<len(H)-1):
+#             j+=1
+#     if j==len(H):
+#         return None
+#     else:
+#         print("Le chemin est possible")
+#         return H[j]
+
+
+# ###### QUESTION 5
+# def distance(G,L):
+#     """Returns the distance of the path L"""
+#     s=0
+#     for i in range(len(L)-1): 
+#         for k in G.graph[L[i]]:
+#             if k[0]==L[i+1]:
+#                 s+=k[2]
+#     return s
+
+# def get_path_distance_min(G,p,t):
+#     if get_path_with_power(G,p,t)==None:
+#         return None
+#     H=all_path_u(G,t[0],t[1])
+#     d=distance(G,H[0])
+#     for L in H:
+#         if power(G,L)>p:
+#             continue
+#     else:
+#         if distance(G,L)<d:
+#             d=distance(G,L)
+#             j=H.index(L)
+#             return H[j]
+
+# ###### QUESTION 6 
+# def min_power(G,v,u):
+#     Paths=all_paths_u(G,v,u)
+#     if Paths==[]:
+#         return "Le chemin n'est pas possible"
 #     else: 
-#         L=[]
-#         for i in range(len(A[a])): 
-#             D=copy.deepcopy(A)
-#             #We isolate each branch coming out of a
-#             D[a]=[A[a][i]]
-#             for j in range(len(A[a])):
-#                 if j!=i:
-#                     del D[A[a][j][0]]
-#                     for k in A[A[a][j][0]]:
-#                         if k[0]!=a:
-#                             del D[k[0]]  
-#             L+=parcours_en_prof(D,a)+parcours_en_prof(D,a)[-1:1:-1]
-#         return L 
-#print(parcours_en_prof(A.graph, 1))
+#         Powers=[power(G,L) for L in Paths]
+#         pw=min(Powers)
+#         i=Powers.index(pw) 
+#         return Paths[i],pw
+
 
