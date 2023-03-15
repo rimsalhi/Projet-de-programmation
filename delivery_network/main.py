@@ -276,10 +276,11 @@ def find(parent,n):
     else:
          return find(parent, parent[n])
 
-def union (parent,n,m):
+def union (parent,m,n):
     """ Modifies the dictionary parent in order the make n the parent of m 
     when they belong to the same connected component."""
-    parent[m]=n
+    parent[m]=find(parent,n)
+
 
 def merge(P1,P2,L1,L2):
     M=[]
@@ -325,6 +326,7 @@ def merge_edges(G):
 def kruskal(G):
     """Returns the minimal spanning tree of the graph G using the Kruskal algorithm.
     """
+    s=0 # number of edges of the minimal spanning tree
     G_mst=Graph(G.nodes)
     parent={n: n for n in G.nodes} # Initially, each node is its parent.
     for edge in merge_edges(G): # We go through the edges in an increasing order of power 
@@ -333,14 +335,17 @@ def kruskal(G):
         node2=edge2[1]
         a=find(parent,node1)
         b=find(parent,node2)
-        if a!=b: # if a and b have diffrent parents, so adding the edge won't create a cycle.
+        if a!=b: 
+            # if a and b have diffrent parents, so adding the edge won't create a cycle.
             for k  in G.graph[node1]:
                 if k[0]==node2:
                     p=k[1] # p is the power of the edge.
                     d=k[2] # d is the distance of the edge.
+            s+=1
             G_mst.add_edge(node1,node2,p,d)
             union(parent,node1,node2) # Since node1 and node2 are related by edge, 
                                       # they're in the same component and they should have the same parent
+    G_mst.nb_edges=s
     return G_mst
 
 """ Complexity analysis: 
@@ -350,11 +355,14 @@ The time complexity of kruskal's algorithm is O(E*logV).
 
 ###### QUESTION 13
 
+# Testing the kruskal method on the small graphs
+
 for i in ['0','1','2','3','4']:
-    graphname="/home/onyxia/work/Projet-de-programmation/input/network.0"+i+"0.in"
+    graphname="/home/onyxia/work/Projet-de-programmation/input/network.0"+i+".in"
     G=graph_from_file_4(graphname)
     print(kruskal(G))
 
+# We have the results we expected. 
 
 ###### QUESTION 14
 
@@ -449,11 +457,12 @@ We tested these functions for one route and it worked. But, we ignore if it's op
 In fact, the pre-processing (determining the minimal spanning tree) time is huge
 and we don't know the time necessary for determining the minimal power of all routes 
 in order to compare it with the time we found in question 10. 
+The same thing goes for the following code.
 """
 
 # Creating the files containing the minimal powers of routes for route.1, route.2 and route.3
 for i in [1,2,3]:
-    f = open("/home/onyxia/work/Projet-de-programmation/delivery_network/route."+str(i), "a")
+    f = open("/home/onyxia/work/Projet-de-programmation/delivery_network/route."+str(i), "w")
     graphname="/home/onyxia/work/Projet-de-programmation/input/network." + str(i) +".in"
     routename="/home/onyxia/work/Projet-de-programmation/input/routes." + str(i) +".in"
     G=graph_from_file_4(graphname)
