@@ -1,3 +1,20 @@
+for i in [1,2,3]:
+    f = open("/home/onyxia/work/Projet-de-programmation/delivery_network/route."+str(i), "w")
+    graphname="/home/onyxia/work/Projet-de-programmation/input/network." + str(i) +".in"
+    routename="/home/onyxia/work/Projet-de-programmation/input/routes." + str(i) +".in"
+    G=graph_from_file_4(graphname)
+    A=kruskal(G)
+    route=route_from_file(routename)
+    for t in route:
+        mP=min_power_tree(A,t)[1]
+        f.write(str(mP) + '\n')
+    f.close()
+
+
+
+
+
+
 def maximiser_profit_réaliste(filename):
     C=[]
     for i in range(3):
@@ -19,7 +36,7 @@ def maximiser_profit_réaliste(filename):
     L.pop(0)
     for j in range(1,len(L)):
         P.append((j,L[j][2],L[j][3]))
-    P1=P.sort(reverse=True)
+    P1=P.sort(key=lambda x:x[2],reverse=True)
 
     M=[[[0 for i in range(len(P1))] for j in range(len(C1))]for k in range(3)]
     w=0

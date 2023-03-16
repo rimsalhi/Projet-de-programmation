@@ -43,7 +43,7 @@ def maximiser_profit(filename):
     L.pop(0)
     for j in range(1,len(L)):
         P.append((j,L[j][2],L[j][3]))
-    P1=P.sort(reverse=True)
+    P1=P.sort(key=lambda x:x[2], reverse=True)
 
     M=[[[0 for i in range(len(P1))] for j in range(len(C1))]for k in range(3)]
     w=0
