@@ -19,7 +19,7 @@ for i in [1,2,3]:
         f.write(str(mP) + '\n')
     f.close()
 
-B=25*(10)**9
+B=25*((10)**9)
 
 
 def maximiser_profit(filename):
