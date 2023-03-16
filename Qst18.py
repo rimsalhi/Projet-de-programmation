@@ -6,6 +6,7 @@
 # Il faut que sum(w[i]*x[i,j]<W) et maximiser sum(p[j]*x[i,j])
 # On commence par trier les coûts
 
+
 for i in [1,2,3]:
     f = open("/home/onyxia/work/Projet-de-programmation/delivery_network/route."+str(i), "w")
     graphname="/home/onyxia/work/Projet-de-programmation/input/network." + str(i) +".in"
@@ -19,6 +20,7 @@ for i in [1,2,3]:
     f.close()
 
 B=25*(10)**9
+
 
 def maximiser_profit(filename):
     C=[]
@@ -61,7 +63,6 @@ def maximiser_profit(filename):
             j+=1
 
     return M
-
 
 
     
