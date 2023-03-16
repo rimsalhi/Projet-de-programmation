@@ -50,7 +50,7 @@ def maximiser_profit(filename):
         k=C1[i][0]
         g=P1[i][0]
         if C1[i][1]>=P1[j][2]:
-            M[g][k[1]][k[0]]==1
+            M[g][k[1]][k[0]]+=1
             w+=C1[i][2]
             i+=1
             j+=1
@@ -59,7 +59,7 @@ def maximiser_profit(filename):
             M[g][k[1]][k[0]]==0
             j+=1
 
-        
+    return M
 
 
 
