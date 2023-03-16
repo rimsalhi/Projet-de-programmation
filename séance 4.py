@@ -19,10 +19,6 @@ for i in [1,2,3]:
     f.close()
 
 
-
-def routes.out(filename):
-    filename1=filename1
-
 def maximiser_profit(filename):
     C=[]
     for i in range(3):
