@@ -12,12 +12,21 @@ def maximiser_profit(filename):
         f=open("trucks."+i+".in", 'r')
         lines=f.readlines()
         L=[]
-        for i in range(len(lines)):
+        for i in range(1,len(lines)):
            L.append(lines[i].split())
-        L.pop(0)
         for j in range(len(L)):
             C.append[((i,j),L[j][0],L[j][1])]
     C1=C.sort(key=lambda x:x[2])
+    P=[]
+    f=open(filename,'r')
+    lines=f.readlines()
+    L=[]
+    for i in range(1,len(L)):
+        L.append(lines[i].split())
+    for j in range(len(L)):
+        P.append[(j,L[j][2])]
+    P1=P.sort(reverse=True)
+    
     
 
     
