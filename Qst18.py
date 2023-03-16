@@ -1,5 +1,5 @@
 # Problème du sac à dos:
-# x[i,j]==1 si le camion i correspond à une route j donc le problème revient à trouver le vecteur x=(x[1,1],..x[n,m])
+# x[i][j]==1 si le camion i correspond à une route j donc le problème revient à trouver le vecteur x=(x[1,1],..x[n,m])
 # W-->B est la limite budgétaire
 # w[i] est le coût du camion i
 # Le profit de la route j que prend le camion est p[j]
@@ -59,7 +59,6 @@ def maximiser_profit(filename):
             j+=1
             
         else:
-            M[g][k[1]][k[0]]==0
             j+=1
 
     return M
