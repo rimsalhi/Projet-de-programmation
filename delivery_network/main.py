@@ -136,7 +136,7 @@ def edges(G):
 def min_power(G,t):
     """Starts by determining the maximal power of the edges PMax. 
     Then, using a dichotomous search on [Pmin,PMax], looks for 
-    the minimal power with whitch the journey t is possible. 
+    the minimal power with which the journey t is possible. 
 
     Args:
         G (Graph): 
@@ -262,7 +262,7 @@ def necessary_time(filename1,filename2):
 
 # print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
 #                      "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
-# Determining the minimal power of all routes in route.1 and their associated paths takes more than 1h. 
+# Determining the minimal power of all routes in route.2 and their associated paths takes more than 1h. 
 # Judging by the complexity, it should take up to several hours. 
 
 
