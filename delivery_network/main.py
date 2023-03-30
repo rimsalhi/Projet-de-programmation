@@ -629,4 +629,83 @@ It works but we gave it up for its exponentinal complexity.
 #         i=Powers.index(pw) 
 #         return Paths[i],pw
 
+# Problème du sac à dos:
+# x[i][j]==1 si le camion i correspond à une route j donc le problème revient à trouver le vecteur x=(x[1,1],..x[n,m])
+# W-->B est la limite budgétaire
+# w[i] est le coût du camion i
+# Le profit de la route j que prend le camion est p[j]
+# Il faut que sum(w[i]*x[i,j]<W) et maximiser sum(p[j]*x[i,j])
+# On commence par trier les coûts
+
+from operator import itemgetter 
+
+B=25*((10)**9)
+
+def trucks_from_file(): 
+    T=[]
+    for i in range(3):
+        graphname="/home/onyxia/Projet-de-programmation/input/trucks." + str(i) + ".in"
+        f = open(graphname, "r")
+        lines=f.readlines()
+        L=[]
+        for i in range(1,len(lines)):
+            L.append(lines[i].split())
+        L.pop(0)
+        for line in L:
+            T.append([int(line[0]),int(line[1])])
+
+    T_sorted = sorted(T, key=itemgetter(1) , reverse=False)
+    return T_sorted
+
+def routes_from_file_2(graphname):
+    R=[]
+    f = open(graphname, "r")
+    lines=f.readlines()
+    L=[]
+    for i in range(1,len(lines)):
+        L.append(lines[i].split())
+    L.pop(0)
+    for line in L:
+        R.append([int(line[0]),int(line[1]),int(line[2])])
+    R_sorted = sorted(R, key=itemgetter(2),reverse=True)
+    return R_sorted
+
+T=trucks_from_file()
+R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.1.in")
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
+def greedy(T,R):
+    D=dict([(t,[]) for t in range(len(T))])
+    R_assigned=[]
+    C=0
+    while C<=B:
+        for t in range(len(T)):
+            for r in range(len(R)):
+                if (T[t][0] <= min_power(G, (R[r][0],R[r][1]))[1]) and (r not in R_assigned):
+                    D[t].append((R[r][0],R[r][1]))
+                    R_assigned.append(r)
+                    C = C + T[t][1]
+    return D
+
+D=greedy(T,R)
+
+def sac_à_dos(T,R):
+    Object=[]
+    ratio=[]
+    for t in range(len(T)):
+        for r in range(len(R)):
+            if T[t][0] <= min_power(G, (R[r][0],R[r][1]))[1]:
+                Object.append((t,r))
+                ratio.append(R[r][2]/T[t][1])
+    O=sorted(Object, key=ratio, reverse=False)
+    L=[]
+    C=0
+    for combi in O:
+        if C<=B:
+            L.append(combi)
+            C = C + T[t][1]
+    return L
+
+
+    
+
 
