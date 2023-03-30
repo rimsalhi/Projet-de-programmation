@@ -155,18 +155,23 @@ def min_power(G,t):
                 PW.append(k[1])
     PW.sort()
     #The dichotomous search for the path with minimal power.
-    a=0
-    b=len(PW)-1
-    while a<b:
-        if get_path_with_power(G, PW[int((b+a)/2)], t)==None:
+    if len(PW) > 1 :
+        a=0
+        b=len(PW)-1
+        while a<b:
+            if get_path_with_power(G, PW[int((b+a)/2)], t)==None:
             #There are no paths for t with a power smaller than (b-a)/2.
-            a=int((b+a)/2)+1
+                a=int((b+a)/2)+1
             #Continues its search in [(b-a)/2,b].
-        else: 
-            b=int((b+a)/2)
+            else: 
+                b=int((b+a)/2)
             #Continue its search for a path with less power required.
-
-    return (get_path_with_power(G, PW[b],t) ,PW[b])
+        B=get_path_with_power(G, PW[b],t)
+        p=PW[b]
+    else:
+        p=Pw[0]
+        B=edge2
+    return (B ,p)
 
 """Complexity analysis: If we consider P to be the number of distinct powers in the graph:
 the complexity of the construction of PW is O(P) and
@@ -411,6 +416,8 @@ def min_power_tree(A,t):
     L2.pop()
     path = L1+L2[::-1]
     p=0
+    if len(path)==2:
+        return path
     for i in range(len(path)-1):
         for k in A.graph[path[i]]:
             if k[0]==path[i+1]: 
@@ -705,7 +712,12 @@ def sac_à_dos(T,R):
             C = C + T[t][1]
     return L
 
-
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
+A=kruskal(G)
+print(A)
+route=route_from_file("/home/onyxia/Projet-de-programmation/input/routes.1.in")
+for t in route:
+    print(min_power_tree(A,t))
     
 
 
