@@ -1,4 +1,6 @@
 from graph import Graph, graph_from_file
+from operator import itemgetter 
+
 
 
 ###### QUESTION 2
@@ -129,9 +131,10 @@ def edges(G):
     H=[]
     for node in G.graph: 
         for k in G.graph[node]:
-            if ({node,k[0]} in H)==False:
-                H.append({node,k[0]})
-    return H
+            if (([k[0], node],k[1]) not in H) and (([node,k[0]],k[1]) not in H):
+                H.append(([node,k[0]],k[1]))
+    edges=[k[0] for k in H]
+    return edges,H
 
 def min_power(G,t):
     """Starts by determining the maximal power of the edges PMax. 
@@ -148,7 +151,7 @@ def min_power(G,t):
     """
     #PW is the list of disctinct powers in the graph sorted in an increasing order.
     PW=[]
-    for edge in edges(G):
+    for edge in edges(G)[0]:
         edge2=list(edge)
         for k in G.graph[edge2[0]]:
             if (k[0]==edge2[1]) and (k[1] not in PW):
@@ -183,29 +186,29 @@ If we only consider V and E, we conclude that the complexity is O(V+E).
 
 ###### QUESTION 7 
 
-import graphviz #installed with conda install python-graphviz
-import os
-os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
+# import graphviz #installed with conda install python-graphviz
+# import os
+# os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
 
-def G_rep(G,t):
-    P= min_power(G,t)[0]
-    v=t[0]
-    u=t[1]
-    f = graphviz.Graph('rep_graph00')
-    H=[]
-    for node in G.graph:
-        for k in G.graph[node]:
-            if ({node,k[0]} in H)==False:
-                if (node in P) and (k[0] in P):
-                    f.node(str(node), fillcolor='red', style='filled')
-                    f.node(str(k[0]), fillcolor='red', style='filled')
-                    f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
-                else:
-                    f.edge(str(node), str(k[0]), label= str(k[1]))
-                H.append({node,k[0]})
-    f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
-    f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
-    f.view()
+# def G_rep(G,t):
+#     P= min_power(G,t)[0]
+#     v=t[0]
+#     u=t[1]
+#     f = graphviz.Graph('rep_graph00')
+#     H=[]
+#     for node in G.graph:
+#         for k in G.graph[node]:
+#             if ({node,k[0]} in H)==False:
+#                 if (node in P) and (k[0] in P):
+#                     f.node(str(node), fillcolor='red', style='filled')
+#                     f.node(str(k[0]), fillcolor='red', style='filled')
+#                     f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
+#                 else:
+#                     f.edge(str(node), str(k[0]), label= str(k[1]))
+#                 H.append({node,k[0]})
+#     f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
+#     f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
+#     f.view()
 
 #The representation of the graph and the minimal power path of network00: rep_graph00.gv.pdf
 # g=graph_from_file_4("/home/onyxia/work/Projet-de-programmation/input/network.00.in")
@@ -287,59 +290,83 @@ def union (parent,m,n):
     parent[m]=find(parent,n)
 
 
-def merge(P1,P2,L1,L2):
-    M=[]
-    i,j=0,0
-    while i < len(L1) and j < len(L2) : 
-        if P1[i] <= P2[i]:
-            M.append(L1[i])
-            i+=1
-        else:
-            M.append(L2[j])
-            j+=1
-    while i < len(L1):
-        M.append(L1[i])
-        i+=1
-    while j < len(L2): 
-        M.append(L2[j])
-        j+=1
-    return M 
+# def merge(P1,P2,L1,L2):
+#     M=[]
+#     i,j=0,0
+#     while i < len(L1) and j < len(L2) : 
+#         if P1[i] <= P2[i]:
+#             M.append(L1[i])
+#             i+=1
+#         else:
+#             M.append(L2[j])
+#             j+=1
+#     while i < len(L1):
+#         M.append(L1[i])
+#         i+=1
+#     while j < len(L2): 
+#         M.append(L2[j])
+#         j+=1
+#     return M 
     
-def merge_sort(L,P):
-    if len(L)<2:
-        return L
-    else:
-        m=len(L)//2
-        L1=merge_sort(L[:m], P[:m])
-        L2=merge_sort(L[m:],P[m:])
-        P1=merge_sort(P[:m],P[:m])
-        P2=merge_sort(P[m:],P[m:])
-        return merge(P1,P2,L1,L2)
+# def merge_sort(L,P):
+#     if len(L)<2:
+#         return L
+#     else:
+#         m=len(L)//2
+#         L1=merge_sort(L[:m], P[:m])
+#         L2=merge_sort(L[m:],P[m:])
+#         P1=merge_sort(P[:m],P[:m])
+#         P2=merge_sort(P[m:],P[m:])
+#         return merge(P1,P2,L1,L2)
 
-def merge_edges(G):
-    L=edges(G)
-    P=[]
-    for edge in L: 
-        edge2=list(edge)
-        node1 = edge2[0]
-        node2 = edge2[1]
-        for k in G.graph[node1]:
-            if k[0]==node2:
-                P.append(k[1])
-    return merge_sort(L,P)
+# def merge_edges(G):
+#     L=edges(G)
+#     P=[]
+#     for edge in L: 
+#         edge2=list(edge)
+#         node1 = edge2[0]
+#         node2 = edge2[1]
+#         for k in G.graph[node1]:
+#             if k[0]==node2:
+#                 P.append(k[1])
+#     return merge_sort(L,P)
+
+class UnionFind:
+    def __init__(self, nodes=[]):
+        parent=dict()
+        for n in nodes:
+            parent[n]=n
+        self.parent=parent
+        
+    def find(self,n):
+        if self.parent[n]==n:
+            return n
+        else:
+            return self.find(self.parent[n])
+    def union(self, m, n):
+        # find the root of the sets in which elements
+        # `x` and `y` belongs
+        x = self.find(m)
+        y = self.find(n)
+        self.parent[x] = y
 
 def kruskal(G):
     """Returns the minimal spanning tree of the graph G using the Kruskal algorithm.
     """
+    E=sorted(edges(G)[1], key=itemgetter(1),reverse=False)
+    edges_sorted=[k[0] for k in E]
+
     s=0 # number of edges of the minimal spanning tree
     G_mst=Graph(G.nodes)
-    parent={n: n for n in G.nodes} # Initially, each node is its parent.
-    for edge in merge_edges(G): # We go through the edges in an increasing order of power 
-        edge2=list(edge)
-        node1=edge2[0]
-        node2=edge2[1]
-        a=find(parent,node1)
-        b=find(parent,node2)
+    parent=UnionFind(G.nodes) # Initially, each node is its parent.
+    for edge in edges_sorted: # We go through the edges in an increasing order of power 
+        # print(edge)
+        node1=edge[0]
+        node2=edge[1]
+        a=parent.find(node1)
+        # print(a)
+        b=parent.find(node2)
+        # print(b)
         if a!=b: 
             # if a and b have diffrent parents, so adding the edge won't create a cycle.
             for k  in G.graph[node1]:
@@ -348,15 +375,16 @@ def kruskal(G):
                     d=k[2] # d is the distance of the edge.
             s+=1
             G_mst.add_edge(node1,node2,p,d)
-            union(parent,node1,node2) # Since node1 and node2 are related by edge, 
+            parent.union(node1,node2) # Since node1 and node2 are related by edge, 
                                       # they're in the same component and they should have the same parent
+            
     G_mst.nb_edges=s
     return G_mst
 
 """ Complexity analysis: 
 The time complexity of kruskal's algorithm is O(E*logV).
 """
-
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
 
 ###### QUESTION 13
 
@@ -371,13 +399,32 @@ for i in ['0','1','2','3','4']:
 
 ###### QUESTION 14
 
-def rank(A,v):
-    if v==A.nodes[0]:
-        return 0
-    for i in range(len(A.nodes)):
-        for k in A.graph[A.nodes[i]]:
-            if k[0]==v:
-                return 1 + rank(A,A.nodes[i])
+
+def rank(A):
+    R=dict(dict([(n, 0) for n in A.nodes]))
+    max_nodes=0
+    for v in A.nodes:
+        if len(A.graph[v]) > max_nodes:
+            root=v
+            max_nodes=len(A.graph[v])
+    # leaves=[]
+    # for v in A.nodes:
+    #     if len(A.graph[v]) == 1:
+    #         leaves.append(v)
+    L=[root]
+    while L!=[]:
+        L2=[]
+        for a in L:
+            for k in A.graph[a]:
+                if (R[k[0]] ==0) and (k[0]!=root):
+                    R[k[0]] = R[a] + 1
+                    L2.append(k[0])
+        L=L2
+    return R
+
+
+
+
 
 """ Complexity analysis:
 The complexity of rank is O(E*V).
@@ -387,9 +434,9 @@ def youngest_common_ancestor(A,t):
     a=t[0]
     b=t[1]
     while a!=b:
-        if rank(A,b) >= rank(A,a):
+        if rank(A)[b] >= rank(A)[a]:
             for k in A.graph[b]:
-                if rank(A,k[0]) < rank(A,b):
+                if rank(A)[k[0]] < rank(A)[b]:
                     b=k[0]
         else: 
             a,b=b,a
@@ -403,27 +450,30 @@ The complexity is therefore O(E²*V).
 def min_power_tree(A,t):
     a1,a2=t[0],t[1]
     L1,L2=[a1],[a2]
+    R=rank(A)
     x=youngest_common_ancestor(A, t)
-    while (a1!=x) or (a2!=x):
+    while a1!=x:
         for k in A.graph[a1]:
-            if rank (A,a1) > rank(A,k[0]):
+            if R[a1] > R[k[0]]:
                 L1.append(k[0])
                 a1=k[0]
+    while  a2!=x:
         for k in A.graph[a2]:
-            if rank(A,a2) > rank(A,k[0]):
+            if R[a2] > R[k[0]]:
                 L2.append(k[0])
                 a2=k[0]
     L2.pop()
     path = L1+L2[::-1]
-    p=0
-    if len(path)==2:
-        return path
-    for i in range(len(path)-1):
-        for k in A.graph[path[i]]:
-            if k[0]==path[i+1]: 
-                if k[1] > p:
-                    p=k[1]
-    return path,p
+    # p=0
+    # if len(path)==2:
+    #     return path
+    # for i in range(len(path)-1):
+    #     for k in A.graph[path[i]]:
+    #         if k[0]==path[i+1]: 
+    #             if k[1] > p:
+    #                 p=k[1]
+    return path
+
 
 
 ###### QUESTION 15
@@ -644,7 +694,6 @@ It works but we gave it up for its exponentinal complexity.
 # Il faut que sum(w[i]*x[i,j]<W) et maximiser sum(p[j]*x[i,j])
 # On commence par trier les coûts
 
-from operator import itemgetter 
 
 B=25*((10)**9)
 
