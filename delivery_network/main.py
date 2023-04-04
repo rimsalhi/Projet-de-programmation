@@ -277,78 +277,34 @@ def necessary_time(filename1,filename2):
 
 ###### QUESTION 12
 
-def find(parent,n):
-    """ Returns the parent of n; the representative of the connected component it belongs to."""
-    if parent[n]==n:
-        return n
-    else:
-         return find(parent, parent[n])
-
-def union (parent,m,n):
-    """ Modifies the dictionary parent in order the make n the parent of m 
-    when they belong to the same connected component."""
-    parent[m]=find(parent,n)
-
-
-# def merge(P1,P2,L1,L2):
-#     M=[]
-#     i,j=0,0
-#     while i < len(L1) and j < len(L2) : 
-#         if P1[i] <= P2[i]:
-#             M.append(L1[i])
-#             i+=1
-#         else:
-#             M.append(L2[j])
-#             j+=1
-#     while i < len(L1):
-#         M.append(L1[i])
-#         i+=1
-#     while j < len(L2): 
-#         M.append(L2[j])
-#         j+=1
-#     return M 
-    
-# def merge_sort(L,P):
-#     if len(L)<2:
-#         return L
-#     else:
-#         m=len(L)//2
-#         L1=merge_sort(L[:m], P[:m])
-#         L2=merge_sort(L[m:],P[m:])
-#         P1=merge_sort(P[:m],P[:m])
-#         P2=merge_sort(P[m:],P[m:])
-#         return merge(P1,P2,L1,L2)
-
-# def merge_edges(G):
-#     L=edges(G)
-#     P=[]
-#     for edge in L: 
-#         edge2=list(edge)
-#         node1 = edge2[0]
-#         node2 = edge2[1]
-#         for k in G.graph[node1]:
-#             if k[0]==node2:
-#                 P.append(k[1])
-#     return merge_sort(L,P)
-
 class UnionFind:
     def __init__(self, nodes=[]):
         parent=dict()
         for n in nodes:
             parent[n]=n
         self.parent=parent
+        self.rank=dict([(n,0) for n in nodes])
         
     def find(self,n):
         if self.parent[n]==n:
             return n
-        else:
-            return self.find(self.parent[n])
+        else: 
+            self.parent[n] = self.find(self.parent[n])
+            return self.parent[n]
     def union(self, m, n):
         # find the root of the sets in which elements
         # `x` and `y` belongs
         x = self.find(m)
         y = self.find(n)
-        self.parent[x] = y
+        if self.rank[x] > self.rank[y]:
+            self.parent[y] = x
+            self.rank[x] = self.rank[x] +  1
+        else:
+            self.parent[x] = y
+            self.rank[y] = self.rank[y] +  1
+
+
+
 
 def kruskal(G):
     """Returns the minimal spanning tree of the graph G using the Kruskal algorithm.
@@ -377,7 +333,6 @@ def kruskal(G):
             G_mst.add_edge(node1,node2,p,d)
             parent.union(node1,node2) # Since node1 and node2 are related by edge, 
                                       # they're in the same component and they should have the same parent
-            
     G_mst.nb_edges=s
     return G_mst
 
@@ -390,10 +345,10 @@ G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
 
 # Testing the kruskal method on the small graphs
 
-for i in ['0','1','2','3','4']:
-    graphname="/home/onyxia/work/Projet-de-programmation/input/network.0"+i+".in"
-    G=graph_from_file_4(graphname)
-    print(kruskal(G))
+# for i in ['0','1','2','3','4']:
+#     graphname="/home/onyxia/work/Projet-de-programmation/input/network.0"+i+".in"
+#     G=graph_from_file_4(graphname)
+#     print(kruskal(G))
 
 # We have the results we expected. 
 
@@ -430,7 +385,7 @@ def rank(A):
 The complexity of rank is O(E*V).
 """
 
-def youngest_common_ancestor(A,t):
+def smallest_common_ancestor(A,t):
     a=t[0]
     b=t[1]
     while a!=b:
@@ -451,7 +406,7 @@ def min_power_tree(A,t):
     a1,a2=t[0],t[1]
     L1,L2=[a1],[a2]
     R=rank(A)
-    x=youngest_common_ancestor(A, t)
+    x=smallest_common_ancestor(A, t)
     while a1!=x:
         for k in A.graph[a1]:
             if R[a1] > R[k[0]]:
@@ -464,15 +419,13 @@ def min_power_tree(A,t):
                 a2=k[0]
     L2.pop()
     path = L1+L2[::-1]
-    # p=0
-    # if len(path)==2:
-    #     return path
-    # for i in range(len(path)-1):
-    #     for k in A.graph[path[i]]:
-    #         if k[0]==path[i+1]: 
-    #             if k[1] > p:
-    #                 p=k[1]
-    return path
+    p=0
+    for i in range(len(path)-1):
+        for k in A.graph[path[i]]:
+            if k[0]==path[i+1]: 
+                if k[1] > p:
+                    p=k[1]
+    return path,p
 
 
 
@@ -481,6 +434,10 @@ def min_power_tree(A,t):
 """ Complexity analysis:
 According to the previous analysis, the complexity of min_power_tree is still O(V) if we only consider V. 
 """
+
+import sys 
+sys.setrecursionlimit(10**9)
+
 
 # Time estimation 
 
@@ -503,32 +460,35 @@ def necessary_time_tree(filename1,filename2):
     b=time.perf_counter()
     return b-a
 
-# print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/network.1.in",
-#                      "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+# print(necessary_time_tree("/home/onyxia/Projet-de-programmation/input/network.1.in",
+#                      "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
 
-# print(necessary_time_tree("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
-#                      "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
+# print(necessary_time_tree("/home/onyxia/Projet-de-programmation/input/network.2.in",
+#                      "/home/onyxia/Projet-de-programmation/input/routes.2.in"))
 
-""" Executing these commands took more than 4 and a half hours. 
-We tested these functions for one route and it worked. But, we ignore if it's optimal.
-In fact, the pre-processing (determining the minimal spanning tree) time is huge
-and we don't know the time necessary for determining the minimal power of all routes 
-in order to compare it with the time we found in question 10. 
-The same thing goes for the following code.
-"""
+# print(necessary_time_tree("/home/onyxia/Projet-de-programmation/input/network.3.in",
+#                      "/home/onyxia/Projet-de-programmation/input/routes.3.in"))
+
+
 
 # Creating the files containing the minimal powers of routes for route.1, route.2 and route.3
-for i in [1,2,3]:
-    f = open("/home/onyxia/work/Projet-de-programmation/delivery_network/route."+str(i), "w")
-    graphname="/home/onyxia/work/Projet-de-programmation/input/network." + str(i) +".in"
-    routename="/home/onyxia/work/Projet-de-programmation/input/routes." + str(i) +".in"
+for i in [2,3]:
+    f = open("/home/onyxia/Projet-de-programmation/delivery_network/route."+str(i), "w")
+    graphname="/home/onyxia/Projet-de-programmation/input/network." + str(i) +".in"
+    routename="/home/onyxia/Projet-de-programmation/input/routes." + str(i) +".in"
     G=graph_from_file_4(graphname)
     A=kruskal(G)
     route=route_from_file(routename)
+    a=time.perf_counter()
     for t in route:
         mP=min_power_tree(A,t)[1]
         f.write(str(mP) + '\n')
+    b=time.perf_counter()
+    print(b-a)
     f.close()
+
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.2.in")
+A=kruskal(G)
 
 
 """ Other methodes with higher complexities : 
