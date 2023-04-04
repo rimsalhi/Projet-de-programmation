@@ -471,7 +471,7 @@ def necessary_time_tree(filename1,filename2):
 
 
 # Creating the files containing the minimal powers of routes for route.1, route.2 and route.3
-for i in [1]:
+for i in [4]:
     f = open("/home/onyxia/Projet-de-programmation/delivery_network/route."+str(i), "w")
     graphname="/home/onyxia/Projet-de-programmation/input/network." + str(i) +".in"
     routename="/home/onyxia/Projet-de-programmation/input/routes." + str(i) +".in"
