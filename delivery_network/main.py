@@ -316,13 +316,10 @@ def kruskal(G):
     G_mst=Graph(G.nodes)
     parent=UnionFind(G.nodes) # Initially, each node is its parent.
     for edge in edges_sorted: # We go through the edges in an increasing order of power 
-        # print(edge)
         node1=edge[0]
         node2=edge[1]
         a=parent.find(node1)
-        # print(a)
         b=parent.find(node2)
-        # print(b)
         if a!=b: 
             # if a and b have diffrent parents, so adding the edge won't create a cycle.
             for k  in G.graph[node1]:
@@ -362,10 +359,6 @@ def rank(A):
         if len(A.graph[v]) > max_nodes:
             root=v
             max_nodes=len(A.graph[v])
-    # leaves=[]
-    # for v in A.nodes:
-    #     if len(A.graph[v]) == 1:
-    #         leaves.append(v)
     L=[root]
     while L!=[]:
         L2=[]
@@ -385,46 +378,52 @@ def rank(A):
 The complexity of rank is O(E*V).
 """
 
-def smallest_common_ancestor(A,t):
-    a=t[0]
-    b=t[1]
-    while a!=b:
-        if rank(A)[b] >= rank(A)[a]:
-            for k in A.graph[b]:
-                if rank(A)[k[0]] < rank(A)[b]:
-                    b=k[0]
-        else: 
-            a,b=b,a
-    return a
+# def smallest_common_ancestor(A,t):
+#     a=t[0]
+#     b=t[1]
+#     while a!=b:
+#         if rank(A)[b] >= rank(A)[a]:
+#             for k in A.graph[b]:
+#                 if rank(A)[k[0]] < rank(A)[b]:
+#                     b=k[0]
+#         else: 
+#             a,b=b,a
+#     return a
 
 """ Complexity analysis:
 In worst case scenerios, we calculate the rank of all nodes, V times.
 The complexity is therefore O(E²*V).
 """
 
-def min_power_tree(A,t):
+def min_power_tree(A,R,t):
     a1,a2=t[0],t[1]
     L1,L2=[a1],[a2]
-    R=rank(A)
-    x=smallest_common_ancestor(A, t)
-    while a1!=x:
-        for k in A.graph[a1]:
-            if R[a1] > R[k[0]]:
-                L1.append(k[0])
-                a1=k[0]
-    while  a2!=x:
+    p=0
+    if R[a1] > R[a2]:
+        a1,a2=a2,a1
+    while R[a1]!=R[a2]:
         for k in A.graph[a2]:
             if R[a2] > R[k[0]]:
                 L2.append(k[0])
                 a2=k[0]
-    L2.pop()
-    path = L1+L2[::-1]
-    p=0
-    for i in range(len(path)-1):
-        for k in A.graph[path[i]]:
-            if k[0]==path[i+1]: 
                 if k[1] > p:
                     p=k[1]
+
+    while a1!=a2:
+        for k in A.graph[a1]:
+            if R[a1] > R[k[0]]:
+                L1.append(k[0])
+                a1=k[0]
+                if k[1] > p:
+                    p=k[1]
+        for k in A.graph[a2]:
+            if R[a2] > R[k[0]]:
+                L2.append(k[0])
+                a2=k[0]
+                if k[1] > p:
+                    p=k[1]
+    L2.pop()
+    path = L1+L2[::-1]
     return path,p
 
 
@@ -472,23 +471,26 @@ def necessary_time_tree(filename1,filename2):
 
 
 # Creating the files containing the minimal powers of routes for route.1, route.2 and route.3
-for i in [2,3]:
+for i in [1]:
     f = open("/home/onyxia/Projet-de-programmation/delivery_network/route."+str(i), "w")
     graphname="/home/onyxia/Projet-de-programmation/input/network." + str(i) +".in"
     routename="/home/onyxia/Projet-de-programmation/input/routes." + str(i) +".in"
     G=graph_from_file_4(graphname)
-    A=kruskal(G)
-    route=route_from_file(routename)
+    c=time.perf_counter()
+    A=kruskal(G)    
     a=time.perf_counter()
+    print(a-c)
+    route=route_from_file(routename)
+    d=time.perf_counter()
+    R=rank(A)
+    e=time.perf_counter()
+    print(e-d)
     for t in route:
-        mP=min_power_tree(A,t)[1]
+        mP=min_power_tree(A,R,t)[1]
         f.write(str(mP) + '\n')
     b=time.perf_counter()
-    print(b-a)
+    print(b-e)
     f.close()
-
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.2.in")
-A=kruskal(G)
 
 
 """ Other methodes with higher complexities : 
