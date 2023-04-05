@@ -18,12 +18,49 @@ def explore(G,v,s):
     Returns:
         set: containing all the nodes from G connected to v
     """
+    s.add(v)
     for k in G.graph[v]:
         if (k[0] in s)==False:
-            s.add(k[0])
             explore(G,k[0],s)
     return s 
 
+# def rep(G,s):
+#     f = graphviz.Graph('rep_graph'+str(len(s))+'png')
+#     H=[]
+#     for node in G.graph:
+#         for k in G.graph[node]:
+#             if node in s:
+#                 f.node(str(node), fillcolor='red', style='filled')
+            
+#             if {str(node), str(k[0])} not in H:
+#                 f.edge(str(node), str(k[0]))
+#                 H.append({str(node), str(k[0])})
+#     f.view()
+
+# def explore(G,v,s):
+#     if s=={1, 2, 3, 4, 5, 7, 10}:
+#         rep(G,s)
+#         print(s)
+#     """A recursive function that updates a set s (initially empty) 
+#     adding each time a node that isn't in s but connected to v 
+#     then moves to explore the connections of the added node.
+
+#     Args:
+#         G (Graph): 
+#         v (integer): a node in the Graph G
+#         s (set): initially empty 
+
+#     Returns:
+#         set: containing all the nodes from G connected to v
+#     """
+#     s.add(v)
+#     for k in G.graph[v]:
+#         if (k[0] in s)==False:
+#             explore(G,k[0],s)
+#     return s 
+
+# G=graph_from_file("/home/onyxia/Projet-de-programmation/input/network.00.in")
+# explore(G,1,set())
 def connected_components_set(G):
     """Uses the explore function to determine the connected component of each node.
     The type Set, being unordered, allows us to avoid redundancy.
@@ -47,7 +84,6 @@ def connected_components_set(G):
 - In the worst-case scenerio, connected_components_set runs explore for each node in the graph.
 Therefore, its complexity is O(V*E).
 """
-
 
 ###### QUESTION 3
 
@@ -186,33 +222,37 @@ If we only consider V and E, we conclude that the complexity is O(V+E).
 
 ###### QUESTION 7 
 
-# import graphviz #installed with conda install python-graphviz
-# import os
-# os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
+import graphviz #installed with conda install python-graphviz
+import os
+os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
 
-# def G_rep(G,t):
-#     P= min_power(G,t)[0]
-#     v=t[0]
-#     u=t[1]
-#     f = graphviz.Graph('rep_graph00')
-#     H=[]
-#     for node in G.graph:
-#         for k in G.graph[node]:
-#             if ({node,k[0]} in H)==False:
-#                 if (node in P) and (k[0] in P):
-#                     f.node(str(node), fillcolor='red', style='filled')
-#                     f.node(str(k[0]), fillcolor='red', style='filled')
-#                     f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
-#                 else:
-#                     f.edge(str(node), str(k[0]), label= str(k[1]))
-#                 H.append({node,k[0]})
-#     f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
-#     f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
-#     f.view()
+def G_rep(G,t):
+    P= min_power(G,t)[0]
+    EP=[]
+    for i in range(len(P)-1):
+        EP.append({P[i],P[i+1]})
+    v=t[0]
+    u=t[1]
+    f = graphviz.Graph('rep_graph00')
+    H=[]
+    for node in G.graph:
+        for k in G.graph[node]:
+            if ({node,k[0]} in H)==False:
+                if (node in P) and (k[0] in P):
+                    f.node(str(node), fillcolor='red', style='filled')
+                    f.node(str(k[0]), fillcolor='red', style='filled')
+                if {node,k[0]} in EP:
+                    f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
+                else:
+                    f.edge(str(node), str(k[0]), label= str(k[1]))
+                H.append({node,k[0]})
+    f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
+    f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
+    f.view()
 
 #The representation of the graph and the minimal power path of network00: rep_graph00.gv.pdf
-# g=graph_from_file_4("/home/onyxia/work/Projet-de-programmation/input/network.00.in")
-# G_rep(g,(1,5))
+g=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
+G_rep(g,(2,20))
 
 
 ###### QUESTION 10
@@ -259,19 +299,23 @@ def necessary_time(filename1,filename2):
     G=graph_from_file_4(filename1)
     routes=route_from_file(filename2)
     a=time.perf_counter()
+    nb_route=0
     for t in routes:
         mP=min_power(G,t)
-    b=time.perf_counter()
-    return b-a
+        nb_route = nb_route + 1
+        if nb_route == 10:
+            b=time.perf_counter()
+            return b-a
 
-#print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.1.in",
-#                    "/home/onyxia/work/Projet-de-programmation/input/routes.1.in"))
+print(necessary_time("/home/onyxia/Projet-de-programmation/input/network.1.in",
+                   "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
 # Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
 
-# print(necessary_time("/home/onyxia/work/Projet-de-programmation/input/network.2.in",
-#                      "/home/onyxia/work/Projet-de-programmation/input/routes.2.in"))
+print(necessary_time("/home/onyxia/Projet-de-programmation/input/network.2.in",
+                     "/home/onyxia/Projet-de-programmation/input/routes.2.in"))
 # Determining the minimal power of all routes in route.2 and their associated paths takes more than 1h. 
 # Judging by the complexity, it should take up to several hours. 
+
 
 
 
@@ -336,8 +380,22 @@ def kruskal(G):
 """ Complexity analysis: 
 The time complexity of kruskal's algorithm is O(E*logV).
 """
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
 
+def rep_graph(G,ch):
+    f = graphviz.Graph('rep_graph'+ch)
+    H=[]
+    for node in G.graph:
+        for k in G.graph[node]:
+            if {str(node), str(k[0])} not in H:
+                f.edge(str(node), str(k[0]))
+                H.append({str(node), str(k[0])})
+    f.view()
+
+# Fig2
+# G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
+# rep_graph(G, 'G')
+# A=kruskal(G)
+# rep_graph(A, 'A')
 ###### QUESTION 13
 
 # Testing the kruskal method on the small graphs
