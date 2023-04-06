@@ -160,33 +160,35 @@ def min_power(G,t):
 
 ###### QUESTION 7 
 
-# import graphviz #installed with conda install python-graphviz
+# import graphviz 
 # import os
 # os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
 
-# def G_rep(G,t):
-#     P= min_power(G,t)[0]
-#     EP=[] # the edges of the minimal power path.
-#     for i in range(len(P)-1):
-#         EP.append({P[i],P[i+1]})
-#     v=t[0]
-#     u=t[1]
-#     f = graphviz.Graph('Fig2')
-#     H=[]
-#     for node in G.graph:
-#         for k in G.graph[node]:
-#             if ({node,k[0]} in H)==False:
-#                 if (node in P) and (k[0] in P):
-#                     f.node(str(node), fillcolor='red', style='filled')
-#                     f.node(str(k[0]), fillcolor='red', style='filled')
-#                 if {node,k[0]} in EP:
-#                     f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
-#                 else:
-#                     f.edge(str(node), str(k[0]), label= str(k[1]))
-#                 H.append({node,k[0]})
-#     f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
-#     f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
-#     f.view()
+# # FIGURE 2
+
+def G_rep(G,t):
+    P= min_power(G,t)[0]
+    EP=[] # the edges of the minimal power path.
+    for i in range(len(P)-1):
+        EP.append({P[i],P[i+1]})
+    v=t[0]
+    u=t[1]
+    f = graphviz.Graph('Fig2')
+    H=[]
+    for node in G.graph:
+        for k in G.graph[node]:
+            if ({node,k[0]} in H)==False:
+                if (node in P) and (k[0] in P):
+                    f.node(str(node), fillcolor='red', style='filled')
+                    f.node(str(k[0]), fillcolor='red', style='filled')
+                if {node,k[0]} in EP:
+                    f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
+                else:
+                    f.edge(str(node), str(k[0]), label= str(k[1]))
+                H.append({node,k[0]})
+    f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
+    f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
+    f.view()
 
 # #The representation of the graph and the minimal power path of network00: rep_graph00.gv.pdf
 # g=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
@@ -273,7 +275,7 @@ class UnionFind:
         if self.parent[n]==n:
             return n
         else: 
-            self.parent[n] = self.find(self.parent[n])
+            self.parent[n] = self.find_path_compression(self.parent[n])
             return self.parent[n]
     
     # # The naive union
@@ -281,8 +283,8 @@ class UnionFind:
     #     self.parent[m]= n
 
     def union_by_rank(self, m, n):
-        x = self.find(m)
-        y = self.find(n)
+        x = self.find_path_compression(m)
+        y = self.find_path_compression(n)
         if self.rank[x] > self.rank[y]:
             self.parent[y] = x
             self.rank[x] = self.rank[x] +  1
@@ -424,9 +426,12 @@ sys.setrecursionlimit(10**9)
 
 ###### QUESTION 18 
 
-B=25*((10)**9)
+B=25*((10)**9) # The budget
 
-def trucks_from_file(): 
+def trucks_from_file():
+    """ Returns a list of lists, each list represents a model of a truck.
+    It contains its power and its cost. We take into account all trucks.x.in files.
+    The models of trucks are sorted by an ascending order of cost.""" 
     T=[]
     for i in range(3):
         graphname="/home/onyxia/Projet-de-programmation/input/trucks." + str(i) + ".in"
@@ -442,8 +447,10 @@ def trucks_from_file():
     T_sorted = sorted(T, key=itemgetter(1) , reverse=False)
     return T_sorted
 
-
 def routes_from_file_2(graphname):
+    """ Returns a list of lists, each list represents a route from graphname.
+    It contains its extremities and its utility. 
+    The routes are sorted by a descending order of utility."""
     R=[]
     f = open(graphname, "r")
     lines=f.readlines()
@@ -456,8 +463,10 @@ def routes_from_file_2(graphname):
     R_sorted = sorted(R, key=itemgetter(2),reverse=True)
     return R_sorted
 
-
 def natural(graphname, routesname):
+    """ Returns a dictionary in which we assign to a truck(key) a list of 
+    routes it will be making according to this naive yet greedy algorithm,
+    given that we assume that the stock of trucks is unlimited"""
     T=trucks_from_file()
     R=routes_from_file_2(routesname)
     G=graph_from_file_4(graphname)
@@ -485,12 +494,15 @@ def natural(graphname, routesname):
 # print(b-a)
 
 def glouton(graphname,routesname):
+    """ Returns the same structure as natural by the combinations (truck,route) 
+    selected have here the best ratio utility/cost."""
     G=graph_from_file_4(graphname)
     T=trucks_from_file()
     R=routes_from_file_2(routesname)
     A=kruskal(G)
     Ranks=rank(A)
-    Object=[]
+    
+    Objects=[]
     ratio=[]
     D=dict([(t,[]) for t in range(len(T))])
     u=0
@@ -498,8 +510,8 @@ def glouton(graphname,routesname):
         for r in range(len(R)):
             if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
                 ratio= R[r][2]/T[t][1]
-                Object.append((t,r,ratio))
-    O=sorted(Object, key=itemgetter(2), reverse=False)
+                Objects.append((t,r,ratio))
+    O=sorted(Objects, key=itemgetter(2), reverse=False)
     C=0
     i=0
     R_assigned=[]
@@ -520,121 +532,157 @@ def glouton(graphname,routesname):
 # print(b-a)
 
 def approx_50(graphname,routesname):
+    """ Returns the best solution of the previous algorithms."""
     (D1,V1)=natural(graphname, routesname)
     (D2,V2)=glouton(graphname, routesname)
     if V1 > V2:
         return (D1,V1)
     else:
         return (D2,V2)
-def add(Object,o,L):
-    if L==[]:
-        return [([o], Object[o][0], Object[o][1])]
-    else:
-        H=[]
-        for sol in L:
-            if sol[1] >= B:
-                continue
-            l=sol[0]
-            l2= l + [o]
-            c=sol[1]
-            c2= c + Object[o][0]
-            u=sol[1]
-            u2=u + Object[o][1]
-            sol2=(l2,c2,u2)
-            H.append (sol2)
-        return H
-def exact(graphname,routesname):
-    G=graph_from_file_4(graphname)
-    T=trucks_from_file()
-    R=routes_from_file_2(routesname)
-    A=kruskal(G)
-    Ranks=rank(A)
-    Object=dict()
-    for t in range(len(T)):
-        for r in range(len(R)):
-            if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
-                Object[(t,r)]=(T[t][1],R[r][2])
-    L=[]
-    for o in Object:
-        L= L + add(Object,o,L) 
-    # for sol in L:
-    #     if sol[1] > B:
-    #         L.remove(sol)
-        H=[]
-        for sol in L:
-            test=True
-            for i in range(len(sol[0])):
-                for j in range(len(sol[0])):
-                    if  (sol[0][i][1]==sol[0][j][1]) and (sol[0][i][0]!=sol[0][j][0]):
-                        test=False
-                        break
-                if test==False:
-                    break
-            if test==True:
-                H.append(sol)
-    S=sorted(L, key=itemgetter(2), reverse=True)
-    return S[0][1], S[0][2]
-a=time.perf_counter()
-print(exact("/home/onyxia/Projet-de-programmation/input/network.1.in",
-               "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
-b=time.perf_counter()
-print(b-a)
 
+# a=time.perf_counter()
+# print(approx_50("/home/onyxia/Projet-de-programmation/input/network.1.in",
+#                "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
+# b=time.perf_counter()
+# print(b-a)
 
-# def rep(G,s):
-#     f = graphviz.Graph('rep_graph'+str(len(s))+'png')
-#     H=[]
-#     for node in G.graph:
-#         for k in G.graph[node]:
-#             if node in s:
-#                 f.node(str(node), fillcolor='red', style='filled')
-            
-#             if {str(node), str(k[0])} not in H:
-#                 f.edge(str(node), str(k[0]))
-#                 H.append({str(node), str(k[0])})
-#     f.view()
-
-# def explore(G,v,s):
-#     if s=={1, 2, 3, 4, 5, 7, 10}:
-#         rep(G,s)
-#         print(s)
-#     """A recursive function that updates a set s (initially empty) 
-#     adding each time a node that isn't in s but connected to v 
-#     then moves to explore the connections of the added node.
+# def add(attr,o,L):
+#     """_summary_
 
 #     Args:
-#         G (Graph): 
-#         v (integer): a node in the Graph G
-#         s (set): initially empty 
+#         attr (dict): To key (truck,route) we associate [cost,utility]
+#         o (tuple): (truck,route) the new object we're considering adding to the solution
+#         L (list): _description_
 
 #     Returns:
-#         set: containing all the nodes from G connected to v
+#         _type_: _description_
 #     """
-#     s.add(v)
-#     for k in G.graph[v]:
-#         if (k[0] in s)==False:
-#             explore(G,k[0],s)
-#     return s 
+#     if L==[]:
+#         return [([o], attr[o][0], attr[o][1])]
+#     else:
+#         H=[]
+#         for sol in L:
+#             if sol[1] >= B:
+#                 continue
+#             l=sol[0]
+#             l2= l + [o]
+#             c=sol[1]
+#             c2= c + attr[o][0]
+#             u=sol[1]
+#             u2=u + attr[o][1]
+#             sol2=(l2,c2,u2)
+#             H.append (sol2)
+#         return H
+
+# def exact(graphname,routesname):
+#     G=graph_from_file_4(graphname)
+#     T=trucks_from_file()
+#     R=routes_from_file_2(routesname)
+#     A=kruskal(G)
+#     Ranks=rank(A)
+#     Object=dict()
+#     for t in range(len(T)):
+#         for r in range(len(R)):
+#             if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
+#                 Object[(t,r)]=(T[t][1],R[r][2])
+#     L=[]
+#     for o in Object:
+#         L= L + add(Object,o,L) 
+#     # for sol in L:
+#     #     if sol[1] > B:
+#     #         L.remove(sol)
+#         H=[]
+#         for sol in L:
+#             test=True
+#             for i in range(len(sol[0])):
+#                 for j in range(len(sol[0])):
+#                     if  (sol[0][i][1]==sol[0][j][1]) and (sol[0][i][0]!=sol[0][j][0]):
+#                         test=False
+#                         break
+#                 if test==False:
+#                     break
+#             if test==True:
+#                 H.append(sol)
+#     S=sorted(L, key=itemgetter(2), reverse=True)
+#     return S[0][1], S[0][2]
+
+
+
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
+T=trucks_from_file()
+R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.1.in")
+A=kruskal(G)
+Ranks=rank(A)
+Objects=[]
+for t in range(len(T)):
+    for r in range(len(R)):
+        if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
+            Objects.append((t,r))
+def exact(B,T, R, Objects):
+   # initial conditions
+   if len(Objects) == 0 or B == 0 :
+      return 0
+   # If weight is higher than capacity then it is not included
+   obj=Objects[-1]
+   t=obj[0]
+   r=obj[1]
+   if T[t][1] > B :
+        return exact(B,T,R,Objects[:-1]) 
+   # return either nth item being included or not
+   else:
+      return max(R[r][2] + exact(B-T[t][1],T, R, Objects[:-1]),
+         exact(B,T, R, Objects[:-1]))
+
+a=time.perf_counter()
+print(exact(B, T, R, Objects))
+b=time.perf_counter()
+print(b-a)
+# # FIGURE 1
+
+def rep(G,s):
+    f = graphviz.Graph('Fig1.'+str(len(s))+'png')
+    H=[]
+    for node in G.graph:
+        for k in G.graph[node]:
+            if node in s:
+                f.node(str(node), fillcolor='red', style='filled')
+            
+            if {str(node), str(k[0])} not in H:
+                f.edge(str(node), str(k[0]))
+                H.append({str(node), str(k[0])})
+    f.view()
+
+def explore(G,v,s):
+    if s=={1, 2, 3, 4, 5, 7, 10}: # We change this according to the stp of the DFS we want to represent
+        rep(G,s)
+        print(s)
+    s.add(v)
+    for k in G.graph[v]:
+        if (k[0] in s)==False:
+            explore(G,k[0],s)
+    return s 
 
 # G=graph_from_file("/home/onyxia/Projet-de-programmation/input/network.00.in")
 # explore(G,1,set())
 
+# # FIGURE 3
 
-# def rep_graph(G,ch):
-#     f = graphviz.Graph('Fig3_network1'+ch)
-#     H=[]
-#     for node in G.graph:
-#         for k in G.graph[node]:
-#             if {str(node), str(k[0])} not in H:
-#                 f.edge(str(node), str(k[0]))
-#                 H.append({str(node), str(k[0])})
-#     # f.view()
+def rep_graph(G,ch):
+    f = graphviz.Graph('Fig3_network1'+ch)
+    H=[]
+    for node in G.graph:
+        for k in G.graph[node]:
+            if {str(node), str(k[0])} not in H:
+                f.edge(str(node), str(k[0]))
+                H.append({str(node), str(k[0])})
+    # f.view()
 
-# Fig3
 # G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
 # rep_graph(G, '')
 # A=kruskal(G)
 # rep_graph(A, '_tree')
+
+
 
 
 """ Other methodes with higher complexities : 
