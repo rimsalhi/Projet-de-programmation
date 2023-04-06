@@ -715,6 +715,9 @@ It works but we gave it up for its exponentinal complexity.
 # On commence par trier les coûts
 
 
+###### QUESTION 18 
+
+
 B=25*((10)**9)
 
 def trucks_from_file(): 
@@ -733,6 +736,7 @@ def trucks_from_file():
     T_sorted = sorted(T, key=itemgetter(1) , reverse=False)
     return T_sorted
 
+
 def routes_from_file_2(graphname):
     R=[]
     f = open(graphname, "r")
@@ -746,7 +750,8 @@ def routes_from_file_2(graphname):
     R_sorted = sorted(R, key=itemgetter(2),reverse=True)
     return R_sorted
 
-def naive(graphname, routesname):
+
+def natural(graphname, routesname):
     T=trucks_from_file()
     R=routes_from_file_2(routesname)
     G=graph_from_file_4(graphname)
@@ -768,18 +773,17 @@ def naive(graphname, routesname):
     return D,u
 
 # a=time.perf_counter()
-# print(naive("/home/onyxia/Projet-de-programmation/input/network.1.in",
-#       "/home/onyxia/Projet-de-programmation/input/routes.1.in")[1])
+# print(natural("/home/onyxia/Projet-de-programmation/input/network.2.in",
+#       "/home/onyxia/Projet-de-programmation/input/routes.2.in")[1])
 # b=time.perf_counter()
 # print(b-a)
 
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
-T=trucks_from_file()
-R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.1.in")
-A=kruskal(G)
-Ranks=rank(A)
-
-def glouton(A,Ranks,T,R):
+def glouton(graphname,routesname):
+    G=graph_from_file_4(graphname)
+    T=trucks_from_file()
+    R=routes_from_file_2(routesname)
+    A=kruskal(G)
+    Ranks=rank(A)
     Object=[]
     ratio=[]
     D=dict([(t,[]) for t in range(len(T))])
@@ -790,7 +794,6 @@ def glouton(A,Ranks,T,R):
                 ratio= R[r][2]/T[t][1]
                 Object.append((t,r,ratio))
     O=sorted(Object, key=itemgetter(2), reverse=False)
-    print(O)
     C=0
     i=0
     R_assigned=[]
@@ -803,10 +806,21 @@ def glouton(A,Ranks,T,R):
             i = i +1
             u = u + R[r][2]
     return D,u
-a=time.perf_counter()
-print(glouton(A, Ranks, T, R)[1])
-b=time.perf_counter()
-print(b-a)
+
+# a=time.perf_counter()
+# print(glouton("/home/onyxia/Projet-de-programmation/input/network.1.in",
+#                "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
+# b=time.perf_counter()
+# print(b-a)
+
+def approx_50(graphname,routesname):
+    (D1,V1)=natural(graphname, routesname)
+    (D2,V2)=glouton(graphname, routesname)
+    if V1 > V2:
+        return (D1,V1)
+    else:
+        return (D2,V2)
+
 
     
 
