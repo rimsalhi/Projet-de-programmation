@@ -509,13 +509,6 @@ def natural(graphname, routesname):
         i = i + 1
     return D,u
 
-# a=time.perf_counter()
-# print(natural("/home/onyxia/Projet-de-programmation/input/network.2.in",
-#       "/home/onyxia/Projet-de-programmation/input/routes.2.in")[1])
-# b=time.perf_counter()
-# print(b-a)
-
-
 def glouton(graphname,routesname):
     """ Returns the same structure as natural by the combinations (truck,route) 
     selected have here the best ratio utility/cost."""
@@ -544,12 +537,6 @@ def glouton(graphname,routesname):
         u = u + R[r][2]
     return D,u
 
-# a=time.perf_counter()
-# print(glouton("/home/onyxia/Projet-de-programmation/input/network.1.in",
-#                "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
-# b=time.perf_counter()
-# print(b-a)
-
 def approx_50(graphname,routesname):
     """ Returns the best solution of the previous algorithms."""
     (D1,V1)=natural(graphname, routesname)
@@ -559,12 +546,6 @@ def approx_50(graphname,routesname):
     else:
         return (D2,V2)
 
-# a=time.perf_counter()
-# print(approx_50("/home/onyxia/Projet-de-programmation/input/network.1.in",
-#                "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
-# b=time.perf_counter()
-# print(b-a)
-
 def Force_Brute(B,T, R, Obj):
     if len(Obj) == 0 or B == 0 :
         return 0
@@ -573,36 +554,33 @@ def Force_Brute(B,T, R, Obj):
     r=obj[1]
     if T[t][1] > B :
         return Force_Brute(B,T,R,Obj[:-1]) 
-   # return either nth item being included or not
     else:
         return max(R[r][2] + Force_Brute(B-T[t][1],T, R, Obj[:-1]),
          Force_Brute(B,T, R, Obj[:-1]))
 
-# If weight is higher than capacity then it is not included
-import time
 
 # Testing the previous algorithms on network.1 and route.1
 
-graphname= "/home/onyxia/Projet-de-programmation/input/network.1.in"
-routesname="/home/onyxia/Projet-de-programmation/input/routes.1.in"
-a=time.perf_counter()
-print(natural(graphname, routesname)[1])
-b=time.perf_counter()
-print(b-a)
-print(glouton(graphname, routesname)[1])
-c=time.perf_counter()
-print(c-b)
-print(approx_50(graphname, routesname)[1])
-d=time.perf_counter()
-print(d-c)
+# graphname= "/home/onyxia/Projet-de-programmation/input/network.1.in"
+# routesname="/home/onyxia/Projet-de-programmation/input/routes.1.in"
+# a=time.perf_counter()
+# print(natural(graphname, routesname)[1])
+# b=time.perf_counter()
+# print(b-a)
+# print(glouton(graphname, routesname)[1])
+# c=time.perf_counter()
+# print(c-b)
+# print(approx_50(graphname, routesname)[1])
+# d=time.perf_counter()
+# print(d-c)
 
-Obj=objects(graphname,routesname)
-T=trucks_from_file()
-R=routes_from_file_2(routesname)
-a=time.perf_counter()
-print(Force_Brute(B, T, R, Obj))
-b=time.perf_counter()
-print(b-a)
+# Obj=objects(graphname,routesname)
+# T=trucks_from_file()
+# R=routes_from_file_2(routesname)
+# a=time.perf_counter()
+# print(Force_Brute(B, T, R, Obj))
+# b=time.perf_counter()
+# print(b-a)
 
 
 
