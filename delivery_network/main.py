@@ -222,37 +222,37 @@ If we only consider V and E, we conclude that the complexity is O(V+E).
 
 ###### QUESTION 7 
 
-import graphviz #installed with conda install python-graphviz
-import os
-os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
+# import graphviz #installed with conda install python-graphviz
+# import os
+# os.environ["PATH"]+=os.pathsep+'C:\Program Files\Graphviz\bin' #to be replaced with the path of the bin of Graphviz on the desktop once dowloaded.
 
-def G_rep(G,t):
-    P= min_power(G,t)[0]
-    EP=[]
-    for i in range(len(P)-1):
-        EP.append({P[i],P[i+1]})
-    v=t[0]
-    u=t[1]
-    f = graphviz.Graph('rep_graph00')
-    H=[]
-    for node in G.graph:
-        for k in G.graph[node]:
-            if ({node,k[0]} in H)==False:
-                if (node in P) and (k[0] in P):
-                    f.node(str(node), fillcolor='red', style='filled')
-                    f.node(str(k[0]), fillcolor='red', style='filled')
-                if {node,k[0]} in EP:
-                    f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
-                else:
-                    f.edge(str(node), str(k[0]), label= str(k[1]))
-                H.append({node,k[0]})
-    f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
-    f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
-    f.view()
+# def G_rep(G,t):
+#     P= min_power(G,t)[0]
+#     EP=[]
+#     for i in range(len(P)-1):
+#         EP.append({P[i],P[i+1]})
+#     v=t[0]
+#     u=t[1]
+#     f = graphviz.Graph('rep_graph00')
+#     H=[]
+#     for node in G.graph:
+#         for k in G.graph[node]:
+#             if ({node,k[0]} in H)==False:
+#                 if (node in P) and (k[0] in P):
+#                     f.node(str(node), fillcolor='red', style='filled')
+#                     f.node(str(k[0]), fillcolor='red', style='filled')
+#                 if {node,k[0]} in EP:
+#                     f.edge(str(node), str(k[0]), label= str(k[1]), color='red') 
+#                 else:
+#                     f.edge(str(node), str(k[0]), label= str(k[1]))
+#                 H.append({node,k[0]})
+#     f.node(str(v), label=str(v)+': Start', fillcolor='red', style='filled')
+#     f.node(str(u), label=str(u)+': Finish', fillcolor='red', style='filled')
+#     f.view()
 
-#The representation of the graph and the minimal power path of network00: rep_graph00.gv.pdf
-g=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
-G_rep(g,(2,20))
+# #The representation of the graph and the minimal power path of network00: rep_graph00.gv.pdf
+# g=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
+# G_rep(g,(2,20))
 
 
 ###### QUESTION 10
@@ -307,14 +307,14 @@ def necessary_time(filename1,filename2):
             b=time.perf_counter()
             return b-a
 
-print(necessary_time("/home/onyxia/Projet-de-programmation/input/network.1.in",
-                   "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
-# Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
+# print(necessary_time("/home/onyxia/Projet-de-programmation/input/network.1.in",
+#                    "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
+# # Determining the minimal power of all routes in route.1 and their associated paths takes about 0,38s.
 
-print(necessary_time("/home/onyxia/Projet-de-programmation/input/network.2.in",
-                     "/home/onyxia/Projet-de-programmation/input/routes.2.in"))
-# Determining the minimal power of all routes in route.2 and their associated paths takes more than 1h. 
-# Judging by the complexity, it should take up to several hours. 
+# print(necessary_time("/home/onyxia/Projet-de-programmation/input/network.2.in",
+#                      "/home/onyxia/Projet-de-programmation/input/routes.2.in"))
+# # Determining the minimal power of all routes in route.2 and their associated paths takes more than 1h. 
+# # Judging by the complexity, it should take up to several hours. 
 
 
 
@@ -379,17 +379,17 @@ def kruskal(G):
 
 """ Complexity analysis: 
 The time complexity of kruskal's algorithm is O(E*logV).
-"""
+# """
 
-def rep_graph(G,ch):
-    f = graphviz.Graph('rep_graph'+ch)
-    H=[]
-    for node in G.graph:
-        for k in G.graph[node]:
-            if {str(node), str(k[0])} not in H:
-                f.edge(str(node), str(k[0]))
-                H.append({str(node), str(k[0])})
-    f.view()
+# def rep_graph(G,ch):
+#     f = graphviz.Graph('rep_graph'+ch)
+#     H=[]
+#     for node in G.graph:
+#         for k in G.graph[node]:
+#             if {str(node), str(k[0])} not in H:
+#                 f.edge(str(node), str(k[0]))
+#                 H.append({str(node), str(k[0])})
+#     # f.view()
 
 # Fig2
 # G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
@@ -529,26 +529,26 @@ def necessary_time_tree(filename1,filename2):
 
 
 # Creating the files containing the minimal powers of routes for route.1, route.2 and route.3
-for i in [4]:
-    f = open("/home/onyxia/Projet-de-programmation/delivery_network/route."+str(i), "w")
-    graphname="/home/onyxia/Projet-de-programmation/input/network." + str(i) +".in"
-    routename="/home/onyxia/Projet-de-programmation/input/routes." + str(i) +".in"
-    G=graph_from_file_4(graphname)
-    c=time.perf_counter()
-    A=kruskal(G)    
-    a=time.perf_counter()
-    print(a-c)
-    route=route_from_file(routename)
-    d=time.perf_counter()
-    R=rank(A)
-    e=time.perf_counter()
-    print(e-d)
-    for t in route:
-        mP=min_power_tree(A,R,t)[1]
-        f.write(str(mP) + '\n')
-    b=time.perf_counter()
-    print(b-e)
-    f.close()
+# for i in [4]:
+#     f = open("/home/onyxia/Projet-de-programmation/delivery_network/route."+str(i), "w")
+#     graphname="/home/onyxia/Projet-de-programmation/input/network." + str(i) +".in"
+#     routename="/home/onyxia/Projet-de-programmation/input/routes." + str(i) +".in"
+#     G=graph_from_file_4(graphname)
+#     c=time.perf_counter()
+#     A=kruskal(G)    
+#     a=time.perf_counter()
+#     print(a-c)
+#     route=route_from_file(routename)
+#     d=time.perf_counter()
+#     R=rank(A)
+#     e=time.perf_counter()
+#     print(e-d)
+#     for t in route:
+#         mP=min_power_tree(A,R,t)[1]
+#         f.write(str(mP) + '\n')
+#     b=time.perf_counter()
+#     print(b-e)
+#     f.close()
 
 
 """ Other methodes with higher complexities : 
@@ -746,47 +746,56 @@ def routes_from_file_2(graphname):
     R_sorted = sorted(R, key=itemgetter(2),reverse=True)
     return R_sorted
 
-T=trucks_from_file()
-R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.1.in")
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
-def greedy(T,R):
+def naive(graphname, routesname):
+    T=trucks_from_file()
+    R=routes_from_file_2(routesname)
+    G=graph_from_file_4(graphname)
+    A=kruskal(G)
+    Ranks=rank(A)
     D=dict([(t,[]) for t in range(len(T))])
     R_assigned=[]
     C=0
     while C<=B:
         for t in range(len(T)):
             for r in range(len(R)):
-                if (T[t][0] <= min_power(G, (R[r][0],R[r][1]))[1]) and (r not in R_assigned):
+                if (T[t][0] <= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]) and (r not in R_assigned):
                     D[t].append((R[r][0],R[r][1]))
                     R_assigned.append(r)
                     C = C + T[t][1]
     return D
+a=time.perf_counter()
+print(naive("/home/onyxia/Projet-de-programmation/input/network.1.in",
+      "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
+b=time.perf_counter()
+print(b-a)
 
-D=greedy(T,R)
-
-def sac_à_dos(T,R):
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.2.in")
+T=trucks_from_file()
+R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.2.in")
+A=kruskal(G)
+Ranks=rank(A)
+def glouton(A,Ranks,T,R):
     Object=[]
     ratio=[]
     for t in range(len(T)):
         for r in range(len(R)):
-            if T[t][0] <= min_power(G, (R[r][0],R[r][1]))[1]:
-                Object.append((t,r))
-                ratio.append(R[r][2]/T[t][1])
-    O=sorted(Object, key=ratio, reverse=False)
+            if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
+                ratio= R[r][2]/T[t][1]
+                Object.append((t,r,ratio))
+    O=sorted(Object, key=itemgetter(2), reverse=False)
     L=[]
     C=0
-    for combi in O:
-        if C<=B:
-            L.append(combi)
-            C = C + T[t][1]
+    i=0
+    while (C<=B) and (i<len(O)):
+        L.append((O[i][0],O[i][1]))
+        C = C + T[t][1]
+        i = i +1
     return L
+a=time.perf_counter()
+print(glouton(A, Ranks, T, R))
+b=time.perf_counter()
+print(b-a)
 
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
-A=kruskal(G)
-print(A)
-route=route_from_file("/home/onyxia/Projet-de-programmation/input/routes.1.in")
-for t in route:
-    print(min_power_tree(A,t))
     
 
 
