@@ -463,28 +463,50 @@ def routes_from_file_2(graphname):
     R_sorted = sorted(R, key=itemgetter(2),reverse=True)
     return R_sorted
 
-def natural(graphname, routesname):
-    """ Returns a dictionary in which we assign to a truck(key) a list of 
-    routes it will be making according to this naive yet greedy algorithm,
-    given that we assume that the stock of trucks is unlimited"""
+
+def objects(graphname,routesname):
+    G=graph_from_file_4(graphname)
     T=trucks_from_file()
     R=routes_from_file_2(routesname)
-    G=graph_from_file_4(graphname)
     A=kruskal(G)
     Ranks=rank(A)
+    Obj=[]
+    R_assigned=dict()
+    for t in range(len(T)):
+        for r in range(len(R)):
+            if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
+                if r in R_assigned and T[R_assigned[r]][1] >  T[t][1]:
+                    Obj.remove((R_assigned[r],r))
+                    Obj.append((t,r))
+                    R_assigned[r]=t
+                elif r in R_assigned and T[R_assigned[r]][1] <=  T[t][1]:
+                    continue
+                else:
+                    Obj.append((t,r))
+                    R_assigned[r]=t
+    return Obj
+
+def natural(graphname, routesname):
+    """ Returns a dictionary in which we assign to a truck(key) a list of 
+    routes it will be making according to this naive yet greedy algorithm."""
+    Obj=objects(graphname, routesname) 
+    T=trucks_from_file()
+    R=routes_from_file_2(routesname)
+    V=[]
+    for o in Obj:
+        V.append([o,R[o[1]][2]])
+    V_sorted=sorted(V, key=itemgetter(1), reverse=True)
     D=dict([(t,[]) for t in range(len(T))])
-    R_assigned=[]
     C=0
     u=0
-    t=0
-    while (C<=B) and (t <len(T)):
-        for r in range(len(R)):
-            if (T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]) and (r not in R_assigned):
-                D[t].append((R[r][0],R[r][1]))
-                R_assigned.append(r)
-                C = C + T[t][1]
-                u = u + R[r][2]
-        t = t + 1
+    i=0
+    while (C<=B) and (i <len(V)):
+        t=V_sorted[i][0][0]
+        r=V_sorted[i][0][1]
+        D[t].append((R[r][0],R[r][1]))
+        C = C + T[t][1]
+        u = u + R[r][2]
+        i = i + 1
     return D,u
 
 # a=time.perf_counter()
@@ -493,36 +515,33 @@ def natural(graphname, routesname):
 # b=time.perf_counter()
 # print(b-a)
 
+
 def glouton(graphname,routesname):
     """ Returns the same structure as natural by the combinations (truck,route) 
     selected have here the best ratio utility/cost."""
-    G=graph_from_file_4(graphname)
+    
+    Obj=objects(graphname, routesname)
     T=trucks_from_file()
     R=routes_from_file_2(routesname)
-    A=kruskal(G)
-    Ranks=rank(A)
+    L_ratio=[]
     
-    Objects=[]
-    ratio=[]
+    for o in Obj:
+        t=o[0]
+        r=o[1]
+        ratio= R[r][2]/T[t][1]
+        L_ratio.append([o,ratio])
+    L=sorted(L_ratio, key=itemgetter(1), reverse=True)
     D=dict([(t,[]) for t in range(len(T))])
     u=0
-    for t in range(len(T)):
-        for r in range(len(R)):
-            if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
-                ratio= R[r][2]/T[t][1]
-                Objects.append((t,r,ratio))
-    O=sorted(Objects, key=itemgetter(2), reverse=False)
     C=0
     i=0
-    R_assigned=[]
-    while (C<=B) and (i<len(O)):
-        t=O[i][0]
-        r=O[i][1]
-        if r not in R_assigned:
-            D[t].append((R[r][0],R[r][1]))
-            C = C + T[t][1]
-            i = i +1
-            u = u + R[r][2]
+    while (C<=B) and (i<len(L_ratio)):
+        t=L_ratio[i][0][0]
+        r=L_ratio[i][0][1]
+        D[t].append((R[r][0],R[r][1]))
+        C = C + T[t][1]
+        i = i +1
+        u = u + R[r][2]
     return D,u
 
 # a=time.perf_counter()
@@ -546,97 +565,47 @@ def approx_50(graphname,routesname):
 # b=time.perf_counter()
 # print(b-a)
 
-# def add(attr,o,L):
-#     """_summary_
-
-#     Args:
-#         attr (dict): To key (truck,route) we associate [cost,utility]
-#         o (tuple): (truck,route) the new object we're considering adding to the solution
-#         L (list): _description_
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     if L==[]:
-#         return [([o], attr[o][0], attr[o][1])]
-#     else:
-#         H=[]
-#         for sol in L:
-#             if sol[1] >= B:
-#                 continue
-#             l=sol[0]
-#             l2= l + [o]
-#             c=sol[1]
-#             c2= c + attr[o][0]
-#             u=sol[1]
-#             u2=u + attr[o][1]
-#             sol2=(l2,c2,u2)
-#             H.append (sol2)
-#         return H
-
-# def exact(graphname,routesname):
-#     G=graph_from_file_4(graphname)
-#     T=trucks_from_file()
-#     R=routes_from_file_2(routesname)
-#     A=kruskal(G)
-#     Ranks=rank(A)
-#     Object=dict()
-#     for t in range(len(T)):
-#         for r in range(len(R)):
-#             if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
-#                 Object[(t,r)]=(T[t][1],R[r][2])
-#     L=[]
-#     for o in Object:
-#         L= L + add(Object,o,L) 
-#     # for sol in L:
-#     #     if sol[1] > B:
-#     #         L.remove(sol)
-#         H=[]
-#         for sol in L:
-#             test=True
-#             for i in range(len(sol[0])):
-#                 for j in range(len(sol[0])):
-#                     if  (sol[0][i][1]==sol[0][j][1]) and (sol[0][i][0]!=sol[0][j][0]):
-#                         test=False
-#                         break
-#                 if test==False:
-#                     break
-#             if test==True:
-#                 H.append(sol)
-#     S=sorted(L, key=itemgetter(2), reverse=True)
-#     return S[0][1], S[0][2]
-
-
-
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
-T=trucks_from_file()
-R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.1.in")
-A=kruskal(G)
-Ranks=rank(A)
-Objects=[]
-for t in range(len(T)):
-    for r in range(len(R)):
-        if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
-            Objects.append((t,r))
-def exact(B,T, R, Objects):
-   # initial conditions
-   if len(Objects) == 0 or B == 0 :
-      return 0
-   # If weight is higher than capacity then it is not included
-   obj=Objects[-1]
-   t=obj[0]
-   r=obj[1]
-   if T[t][1] > B :
-        return exact(B,T,R,Objects[:-1]) 
+def Force_Brute(B,T, R, Obj):
+    if len(Obj) == 0 or B == 0 :
+        return 0
+    obj=Obj[-1]
+    t=obj[0]
+    r=obj[1]
+    if T[t][1] > B :
+        return Force_Brute(B,T,R,Obj[:-1]) 
    # return either nth item being included or not
-   else:
-      return max(R[r][2] + exact(B-T[t][1],T, R, Objects[:-1]),
-         exact(B,T, R, Objects[:-1]))
+    else:
+        return max(R[r][2] + Force_Brute(B-T[t][1],T, R, Obj[:-1]),
+         Force_Brute(B,T, R, Obj[:-1]))
 
+# If weight is higher than capacity then it is not included
+import time
+
+# Testing the previous algorithms on network.1 and route.1
+
+graphname= "/home/onyxia/Projet-de-programmation/input/network.1.in"
+routesname="/home/onyxia/Projet-de-programmation/input/routes.1.in"
 a=time.perf_counter()
-print(exact(B, T, R, Objects))
+print(natural(graphname, routesname)[1])
 b=time.perf_counter()
 print(b-a)
+print(glouton(graphname, routesname)[1])
+c=time.perf_counter()
+print(c-b)
+print(approx_50(graphname, routesname)[1])
+d=time.perf_counter()
+print(d-c)
+
+Obj=objects(graphname,routesname)
+T=trucks_from_file()
+R=routes_from_file_2(routesname)
+a=time.perf_counter()
+print(Force_Brute(B, T, R, Obj))
+b=time.perf_counter()
+print(b-a)
+
+
+
 # # FIGURE 1
 
 def rep(G,s):
