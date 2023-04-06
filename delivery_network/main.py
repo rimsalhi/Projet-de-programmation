@@ -820,6 +820,60 @@ def approx_50(graphname,routesname):
         return (D1,V1)
     else:
         return (D2,V2)
+def add(Object,o,L):
+    if L==[]:
+        return [([o], Object[o][0], Object[o][1])]
+    else:
+        H=[]
+        for sol in L:
+            if sol[1] >= B:
+                continue
+            l=sol[0]
+            l2= l + [o]
+            c=sol[1]
+            c2= c + Object[o][0]
+            u=sol[1]
+            u2=u + Object[o][1]
+            sol2=(l2,c2,u2)
+            H.append (sol2)
+        return H
+def exact(graphname,routesname):
+    G=graph_from_file_4(graphname)
+    T=trucks_from_file()
+    R=routes_from_file_2(routesname)
+    A=kruskal(G)
+    Ranks=rank(A)
+    Object=dict()
+    for t in range(len(T)):
+        for r in range(len(R)):
+            if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
+                Object[(t,r)]=(T[t][1],R[r][2])
+    L=[]
+    for o in Object:
+        L= L + add(Object,o,L) 
+    # for sol in L:
+    #     if sol[1] > B:
+    #         L.remove(sol)
+        H=[]
+        for sol in L:
+            test=True
+            for i in range(len(sol[0])):
+                for j in range(len(sol[0])):
+                    if  (sol[0][i][1]==sol[0][j][1]) and (sol[0][i][0]!=sol[0][j][0]):
+                        test=False
+                        break
+                if test==False:
+                    break
+            if test==True:
+                H.append(sol)
+    S=sorted(L, key=itemgetter(2), reverse=True)
+    return S[0][1], S[0][2]
+a=time.perf_counter()
+print(exact("/home/onyxia/Projet-de-programmation/input/network.1.in",
+               "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
+b=time.perf_counter()
+print(b-a)
+
 
 
     
