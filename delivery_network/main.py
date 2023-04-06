@@ -755,44 +755,56 @@ def naive(graphname, routesname):
     D=dict([(t,[]) for t in range(len(T))])
     R_assigned=[]
     C=0
-    while C<=B:
-        for t in range(len(T)):
-            for r in range(len(R)):
-                if (T[t][0] <= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]) and (r not in R_assigned):
-                    D[t].append((R[r][0],R[r][1]))
-                    R_assigned.append(r)
-                    C = C + T[t][1]
-    return D
-a=time.perf_counter()
-print(naive("/home/onyxia/Projet-de-programmation/input/network.1.in",
-      "/home/onyxia/Projet-de-programmation/input/routes.1.in"))
-b=time.perf_counter()
-print(b-a)
+    u=0
+    t=0
+    while (C<=B) and (t <len(T)):
+        for r in range(len(R)):
+            if (T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]) and (r not in R_assigned):
+                D[t].append((R[r][0],R[r][1]))
+                R_assigned.append(r)
+                C = C + T[t][1]
+                u = u + R[r][2]
+        t = t + 1
+    return D,u
 
-G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.2.in")
+# a=time.perf_counter()
+# print(naive("/home/onyxia/Projet-de-programmation/input/network.1.in",
+#       "/home/onyxia/Projet-de-programmation/input/routes.1.in")[1])
+# b=time.perf_counter()
+# print(b-a)
+
+G=graph_from_file_4("/home/onyxia/Projet-de-programmation/input/network.1.in")
 T=trucks_from_file()
-R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.2.in")
+R=routes_from_file_2("/home/onyxia/Projet-de-programmation/input/routes.1.in")
 A=kruskal(G)
 Ranks=rank(A)
+
 def glouton(A,Ranks,T,R):
     Object=[]
     ratio=[]
+    D=dict([(t,[]) for t in range(len(T))])
+    u=0
     for t in range(len(T)):
         for r in range(len(R)):
             if T[t][0] >= min_power_tree(A, Ranks, (R[r][0],R[r][1]))[1]:
                 ratio= R[r][2]/T[t][1]
                 Object.append((t,r,ratio))
     O=sorted(Object, key=itemgetter(2), reverse=False)
-    L=[]
+    print(O)
     C=0
     i=0
+    R_assigned=[]
     while (C<=B) and (i<len(O)):
-        L.append((O[i][0],O[i][1]))
-        C = C + T[t][1]
-        i = i +1
-    return L
+        t=O[i][0]
+        r=O[i][1]
+        if r not in R_assigned:
+            D[t].append((R[r][0],R[r][1]))
+            C = C + T[t][1]
+            i = i +1
+            u = u + R[r][2]
+    return D,u
 a=time.perf_counter()
-print(glouton(A, Ranks, T, R))
+print(glouton(A, Ranks, T, R)[1])
 b=time.perf_counter()
 print(b-a)
 
